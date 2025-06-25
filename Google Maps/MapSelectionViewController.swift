@@ -6,6 +6,8 @@ import GooglePlaces
 import CoreLocation
 
 
+// проблема с картой не решена
+
 // протокол для передачи выбранных данных обратно
 protocol MapSelectionDelegate: AnyObject {
     func didSelectLocation(coordinate: CLLocationCoordinate2D, address: String?)
