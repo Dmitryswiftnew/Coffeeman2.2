@@ -1,0 +1,6 @@
+framework module Pods_Coffeeman2 {
+  umbrella header "Pods-Coffeeman2-umbrella.h"
+
+  export *
+  module * { export * }
+}
