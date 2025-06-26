@@ -1,9 +1,8 @@
 
 import Foundation
 import UIKit
-import GoogleMaps
-import GooglePlaces
 import CoreLocation
+import MapKit
 
 
 // проблема с картой не решена
@@ -14,12 +13,12 @@ protocol MapSelectionDelegate: AnyObject {
 }
 
 
-class MapSelectionViewController: UIViewController, CLLocationManagerDelegate, GMSMapViewDelegate {
+class MapSelectionViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDelegate {
     
     weak var delegate: MapSelectionDelegate?
     let locationManager = CLLocationManager()  // исправлено имя переменной
-    var mapView: GMSMapView!
-    var marker: GMSMarker?
+    var mapView: MKMapView!
+    var annotation: MKPointAnnotation?
     
     //  кнопка Done
     
@@ -49,22 +48,44 @@ class MapSelectionViewController: UIViewController, CLLocationManagerDelegate, G
     
     
     func setupMapView() {
-        let options = GMSMapViewOptions()
-        options.camera = GMSCameraPosition(latitude: 0, longitude: 0, zoom: 1)
-        
-        mapView = GMSMapView(options: options)
-        mapView.frame = view.bounds
+        mapView = MKMapView(frame: view.bounds)
+        mapView.autoresizingMask = [ .flexibleWidth, .flexibleHeight]
+        mapView.delegate = self
+        mapView.showsUserLocation = true // вкл отображение текущего местоположения
         
         mapView.layer.borderColor = UIColor.red.cgColor  // Красная граница
         mapView.layer.borderWidth = 3                    // Толщина границы 3 пункта
         
-        mapView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        mapView.isMyLocationEnabled = true
-        mapView.settings.myLocationButton = true
-        mapView.delegate = self
+        // настройка жеста для добавления маркера
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleMapTap(_:)))
+        mapView.addGestureRecognizer(tapGesture)
         
         view.addSubview(mapView)
     }
+    
+    
+    @objc func handleMapTap(_ gesture: UITapGestureRecognizer) {
+        let location = gesture.location(in: mapView)
+        let coordinate = mapView.convert(location, toCoordinateFrom: mapView)
+        
+        // Удаляем предыдущую аннотацию
+        
+        if let existingAnnotation = annotation {
+            mapView.removeAnnotation(existingAnnotation)
+        }
+        
+        // Создаем новыйю аннотацию
+        
+        let newAnnotation = MKPointAnnotation()
+        newAnnotation.coordinate = coordinate
+        mapView.addAnnotation(newAnnotation)
+        annotation = newAnnotation
+        
+        let region = MKCoordinateRegion(center: coordinate, latitudinalMeters: 500, longitudinalMeters: 500)
+        mapView.setRegion(region, animated: true)
+        
+    }
+    
     
     func setupDoneButton() {
         view.addSubview(doneButton)
@@ -82,80 +103,57 @@ class MapSelectionViewController: UIViewController, CLLocationManagerDelegate, G
     
     
     @objc func doneButtonTapped() {
-        guard let mapView = mapView else { return }
+        guard let annotation = annotation else { return }
+        let coordinate = annotation.coordinate
         
-        // получаем координаты центра карты
+        // Обратное геокодирование с помощью CLGeocoder
+        let geocoder = CLGeocoder()
+        let location = CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
         
-        let centerCoordinate = mapView.camera.target
-        
-        // обратное геокодирование
-        
-        let geocoder = GMSGeocoder()
-        geocoder.reverseGeocodeCoordinate(centerCoordinate) { [weak self] response , error in
+        geocoder.reverseGeocodeLocation(location) { [weak self] (placemarks, error) in
             guard let self = self else { return }
             
+            var addressString: String? = nil
+            
             if let error = error {
-                print("Geocoder error: \(error.localizedDescription)")  // проверка на ошибку
+                print("Geocoder error: \(error.localizedDescription)")
+            } else if let placemark = placemarks?.first {
+                // Форматируем адрес
+                addressString = [
+                    placemark.thoroughfare,
+                    placemark.subThoroughfare,
+                    placemark.locality,
+                    placemark.country
+                ].compactMap { $0 }.joined(separator: ", ")
             }
             
-            
-            var adressString: String? = nil
-            
-            if let address = response?.firstResult(), error == nil {
-                // формируем строку адреса из компонентов
-                
-                let lines = address.lines ?? []
-                adressString = lines.joined(separator: ", ")
-            }
-               // Передаем координаты и адрес обратно через делегат
-            
-            self.delegate?.didSelectLocation(coordinate: centerCoordinate, address: adressString)
-            
-            // // Закрываем модальный экран
+            self.delegate?.didSelectLocation(coordinate: coordinate, address: addressString)
             self.dismiss(animated: true)
-            
-            
         }
-        
-        
     }
+
     
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         if let location = locations.last {
             print("Получена локация: \(location.coordinate.latitude), \(location.coordinate.longitude)")
-            guard mapView != nil else {
-                print("Ошибка: mapView не инициализирован")
-                return
-            }
-            let camera = GMSCameraPosition(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude, zoom: 15)
-            mapView.animate(to: camera)
-            print("Анимация камеры запущена")
+           
+            let coordinate = location.coordinate
+            let region = MKCoordinateRegion(
+                center: coordinate,
+                latitudinalMeters: 1000,
+                longitudinalMeters: 1000
+                )
+            
+            mapView.setRegion(region, animated: true)
             locationManager.stopUpdatingLocation()
+            
+            
         }
     }
     
     
-    // MARK: - GMSMapViewDelegate
-    
-    func mapView(_ mapView: GMSMapView, didTapAt coordinate: CLLocationCoordinate2D) {
-        // удаляем предыдущий маркер
-        marker?.map = nil
-        // создаем новый маркер в точке касания
-        
-        
-        // новый маркер в точке касания
-        marker = GMSMarker(position: coordinate)
-        marker?.map = mapView
-        
-        // Центрируем камеру на выбранной точке
-        mapView.animate(toLocation: coordinate)
-        
-        
-        marker?.isDraggable = true
-        
-        
-    }
+  
     
     
     // MARK: - CLLocationManagerDelegate и разрешения
