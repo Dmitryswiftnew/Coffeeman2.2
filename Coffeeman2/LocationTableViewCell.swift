@@ -8,42 +8,36 @@ class LocationTableViewCell: UITableViewCell {
     let textField = UITextField()
     let mapButton = UIButton(type: .system)
     
-    
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-        setup()
+        setupUI()
     }
     
     required init?(coder: NSCoder) {
-        super.init(coder: coder)
-        setup()
+        fatalError("init(coder:) has not been implemented")
     }
     
-    private func setup() {
+    private func setupUI() {
+        mapButton.setImage(UIImage(systemName: "mappin.circle.fill"), for: .normal)
+        mapButton.tintColor = .brown
+        mapButton.frame = CGRect(x: 0, y: 0, width: 32, height: 32)
+        
+        textField.placeholder = "Адрес"
+        textField.borderStyle = .roundedRect
         textField.translatesAutoresizingMaskIntoConstraints = false
-        mapButton.translatesAutoresizingMaskIntoConstraints = false
-        mapButton.setImage(UIImage(systemName: "mappin.and.ellipse"), for: .normal)
-        mapButton.tintColor = .systemBrown
+        textField.rightView = mapButton
+        textField.rightViewMode = .always
         
         contentView.addSubview(textField)
-        contentView.addSubview(mapButton)
-        
         
         NSLayoutConstraint.activate([
             textField.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
-               textField.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
-               textField.trailingAnchor.constraint(equalTo: mapButton.leadingAnchor, constant: -8),
-               
-               mapButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
-               mapButton.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
-               mapButton.widthAnchor.constraint(equalToConstant: 28),
-               mapButton.heightAnchor.constraint(equalToConstant: 28)
-                                               
-            
+            textField.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+            textField.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 8),
+            textField.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -8),
+            textField.heightAnchor.constraint(equalToConstant: 40)
         ])
-        
-        
     }
-    
-    
 }
+
+

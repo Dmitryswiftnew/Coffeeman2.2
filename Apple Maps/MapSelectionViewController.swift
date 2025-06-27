@@ -1,11 +1,10 @@
 
 import Foundation
 import UIKit
-import CoreLocation
 import MapKit
 
 
-// проблема с картой не решена
+
 
 // протокол для передачи выбранных данных обратно
 protocol MapSelectionDelegate: AnyObject {
@@ -19,14 +18,15 @@ class MapSelectionViewController: UIViewController, CLLocationManagerDelegate, M
     let locationManager = CLLocationManager()  // исправлено имя переменной
     var mapView: MKMapView!
     var annotation: MKPointAnnotation?
-    
+    var selectedAddress: String?
+    var selectedCoordinate: CLLocationCoordinate2D?
     //  кнопка Done
     
     
     private let doneButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("Done", for: .normal)
-        button.backgroundColor = .systemBlue
+//        button.backgroundColor = .systemBlue
         button.tintColor = .white
         button.layer.cornerRadius = 8
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -37,12 +37,13 @@ class MapSelectionViewController: UIViewController, CLLocationManagerDelegate, M
         super.viewDidLoad()
         
         view.backgroundColor = .white
+        setupMapView()
         
         locationManager.delegate = self
         locationManager.desiredAccuracy = kCLLocationAccuracyBest
         checkLocationAuthorization()  // исправлено имя функции
         
-        setupMapView()
+        
         setupDoneButton()
     }
     
@@ -52,6 +53,8 @@ class MapSelectionViewController: UIViewController, CLLocationManagerDelegate, M
         mapView.autoresizingMask = [ .flexibleWidth, .flexibleHeight]
         mapView.delegate = self
         mapView.showsUserLocation = true // вкл отображение текущего местоположения
+        mapView.userTrackingMode = .follow // следит за пользователем
+        
         
         mapView.layer.borderColor = UIColor.red.cgColor  // Красная граница
         mapView.layer.borderWidth = 3                    // Толщина границы 3 пункта
@@ -69,22 +72,90 @@ class MapSelectionViewController: UIViewController, CLLocationManagerDelegate, M
         let coordinate = mapView.convert(location, toCoordinateFrom: mapView)
         
         // Удаляем предыдущую аннотацию
-        
         if let existingAnnotation = annotation {
             mapView.removeAnnotation(existingAnnotation)
         }
         
-        // Создаем новыйю аннотацию
-        
+        // Создаем новую аннотацию
         let newAnnotation = MKPointAnnotation()
         newAnnotation.coordinate = coordinate
+        newAnnotation.title = "Загрузка адреса..."
         mapView.addAnnotation(newAnnotation)
         annotation = newAnnotation
         
+        // Обратное геокодирование
+        let geocoder = CLGeocoder()
+        let locationForGeocode = CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
+        
+        geocoder.reverseGeocodeLocation(locationForGeocode) { [weak self] placemarks, error in
+            guard let self = self else { return }
+            
+            if let placemark = placemarks?.first, error == nil {
+                // Форматируем адрес
+                let street = placemark.thoroughfare ?? ""
+                let number = placemark.subThoroughfare ?? ""
+                let city = placemark.locality ?? ""
+                
+                var streetPart = ""
+                if !street.isEmpty {
+                    streetPart = number.isEmpty ? street : "\(street), \(number)"
+                }
+                
+                var addressParts = [String]()
+                if !streetPart.isEmpty {
+                    addressParts.append(streetPart)
+                }
+                if !city.isEmpty {
+                    addressParts.append(city)
+                }
+                
+                let formattedAddress = addressParts.joined(separator: ", ")
+                
+                // Обновляем аннотацию
+                newAnnotation.title = formattedAddress
+                self.mapView.selectAnnotation(newAnnotation, animated: true)
+                
+                // Сохраняем для передачи
+                self.selectedAddress = formattedAddress
+                self.selectedCoordinate = coordinate
+                
+            } else {
+                newAnnotation.title = "Адрес не найден"
+                self.mapView.selectAnnotation(newAnnotation, animated: true)
+                self.selectedAddress = nil
+                self.selectedCoordinate = nil
+            }
+        }
+        
+        // Центрируем карту
         let region = MKCoordinateRegion(center: coordinate, latitudinalMeters: 500, longitudinalMeters: 500)
         mapView.setRegion(region, animated: true)
-        
     }
+
+    
+    func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
+        // Не кастомизируем стандартное отображение для текущей локации пользователя
+        if annotation is MKUserLocation {
+            return nil
+        }
+        
+        let identifier = "Pin"
+        var annotationView = mapView.dequeueReusableAnnotationView(withIdentifier: identifier) as? MKPinAnnotationView
+        
+        if annotationView == nil {
+            annotationView = MKPinAnnotationView(annotation: annotation, reuseIdentifier: identifier)
+            annotationView?.canShowCallout = true  // включаем отображение callout
+            annotationView?.animatesDrop = true    // анимация падения пина
+            annotationView?.pinTintColor = .red
+        } else {
+            annotationView?.annotation = annotation
+        }
+        
+        return annotationView
+    }
+    
+    
+    
     
     
     func setupDoneButton() {
@@ -92,8 +163,8 @@ class MapSelectionViewController: UIViewController, CLLocationManagerDelegate, M
         NSLayoutConstraint.activate([
             doneButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
             doneButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            doneButton.widthAnchor.constraint(equalToConstant: 120),
-            doneButton.heightAnchor.constraint(equalToConstant: 44)
+            doneButton.widthAnchor.constraint(equalToConstant: 255),
+            doneButton.heightAnchor.constraint(equalToConstant: 99)
             
         ])
         
@@ -103,35 +174,50 @@ class MapSelectionViewController: UIViewController, CLLocationManagerDelegate, M
     
     
     @objc func doneButtonTapped() {
-        guard let annotation = annotation else { return }
-        let coordinate = annotation.coordinate
-        
-        // Обратное геокодирование с помощью CLGeocoder
-        let geocoder = CLGeocoder()
-        let location = CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
-        
-        geocoder.reverseGeocodeLocation(location) { [weak self] (placemarks, error) in
-            guard let self = self else { return }
+        if let coordinate = selectedCoordinate {
+            // Если адрес уже есть, используем его, иначе делаем обратное геокодирование
+            if let address = selectedAddress {
+                delegate?.didSelectLocation(coordinate: coordinate, address: address)
+                dismiss(animated: true)
+            } else {
             
-            var addressString: String? = nil
+            // Обратное геокодирование с помощью CLGeocoder
+            let geocoder = CLGeocoder()
+            let location = CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
             
-            if let error = error {
-                print("Geocoder error: \(error.localizedDescription)")
-            } else if let placemark = placemarks?.first {
-                // Форматируем адрес
-                addressString = [
-                    placemark.thoroughfare,
-                    placemark.subThoroughfare,
-                    placemark.locality,
-                    placemark.country
-                ].compactMap { $0 }.joined(separator: ", ")
+                geocoder.reverseGeocodeLocation(location) { [weak self] (placemarks, error) in
+                    guard let self = self else { return }
+                    
+                    var addressString: String? = nil
+                    
+                    if let placemark = placemarks?.first, error == nil {
+                        let street = placemark.thoroughfare ?? ""
+                        let number = placemark.subThoroughfare ?? ""
+                        let city = placemark.locality ?? ""
+                        var parts = [String]()
+                        
+                        if !street.isEmpty {
+                            let streetWithNumber = number.isEmpty ? street : "\(street) \(number)"
+                            
+                            parts.append(streetWithNumber)
+                        }
+                        
+                        if !city.isEmpty {
+                            parts.append(city)
+                        }
+                        
+                        addressString = parts.joined(separator: ", ")
+                    }
+                    
+                    self.delegate?.didSelectLocation(coordinate: coordinate, address: addressString)
+                    self.dismiss(animated: true)
+                }
             }
-            
-            self.delegate?.didSelectLocation(coordinate: coordinate, address: addressString)
-            self.dismiss(animated: true)
+        } else {
+            // Если маркер не выбран, закрываем экран без передачи координат
+            dismiss(animated: true)
         }
     }
-
     
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
@@ -141,12 +227,12 @@ class MapSelectionViewController: UIViewController, CLLocationManagerDelegate, M
             let coordinate = location.coordinate
             let region = MKCoordinateRegion(
                 center: coordinate,
-                latitudinalMeters: 1000,
-                longitudinalMeters: 1000
+                latitudinalMeters: 800,
+                longitudinalMeters: 800
                 )
             
             mapView.setRegion(region, animated: true)
-            locationManager.stopUpdatingLocation()
+//            locationManager.stopUpdatingLocation()
             
             
         }

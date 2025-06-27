@@ -4,8 +4,7 @@ use_frameworks!
 install! 'cocoapods', :disable_input_output_paths => true
 
 target 'Coffeeman2' do
-  pod 'GoogleMaps', '~> 10.0'
-  pod 'GooglePlaces', '~> 10.0'
+ 
 end
 
 post_install do |installer|

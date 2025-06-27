@@ -2,12 +2,13 @@
 import UIKit
 import CoreData
 import CoreLocation
-import GoogleMaps
+import MapKit
+
 
 
 
 class AddCoffeeShopViewController: UITableViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, StarRatingViewDelegate {
-   
+    
     
     
     let starRatingView = StarRatingView()
@@ -22,9 +23,11 @@ class AddCoffeeShopViewController: UITableViewController, UIImagePickerControlle
     
     var coffeeShopToEdit: CoffeeShop?
     
+    var selectedTypeIndex: Int?
     
     
-   
+    
+    
     
     
     // MARK: - Перечисление ячеек
@@ -44,7 +47,7 @@ class AddCoffeeShopViewController: UITableViewController, UIImagePickerControlle
     var type: String? // Тип кофе
     var currentRating: Int = 0 // свойство для хранения рейтинга
     
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -73,7 +76,7 @@ class AddCoffeeShopViewController: UITableViewController, UIImagePickerControlle
         typePicker.dataSource = self
         typePicker.delegate = self
         
- 
+        
         if let coffeeShop = coffeeShopToEdit {
             name = coffeeShop.name
             location = coffeeShop.address
@@ -98,7 +101,7 @@ class AddCoffeeShopViewController: UITableViewController, UIImagePickerControlle
         
         
     }
-
+    
     // метод делегата для starRatingView
     
     func starRatingView(_ starRatingView: StarRatingView, didUpdate rating: Int) {
@@ -108,13 +111,13 @@ class AddCoffeeShopViewController: UITableViewController, UIImagePickerControlle
     
     
     // MARK: - Table view data source
-
+    
     override func numberOfSections(in tableView: UITableView) -> Int { 1 }
-
+    
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         AddPlaceCell.allCases.count // Количество ячеек равно числу элементов enum
     }
-
+    
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cellType = AddPlaceCell(rawValue: indexPath.row) else {
@@ -132,6 +135,8 @@ class AddCoffeeShopViewController: UITableViewController, UIImagePickerControlle
             let cell = tableView.dequeueReusableCell(withIdentifier: "TextFieldCell", for: indexPath) as! TextFieldTableViewCell
             cell.textField.placeholder = "Название кофейни"
             cell.textField.text = name
+            cell.textField.isUserInteractionEnabled = true
+            cell.showPickerButton(false) // Скрываем кнопку для названия
             cell.onTextChanged = { [weak self] text in
                 self?.name = text
             }
@@ -139,31 +144,50 @@ class AddCoffeeShopViewController: UITableViewController, UIImagePickerControlle
             
         case .location:
             let cell = tableView.dequeueReusableCell(withIdentifier: "LocationCell", for: indexPath) as! LocationTableViewCell
-            cell.textField.placeholder = "Адрес"
             cell.textField.text = location
-            // Если хочешь разрешить ручной ввод, поставь true
-            cell.textField.isUserInteractionEnabled = false // ввод адреса только с карты 
-            // Удаляем старые цели, чтобы не добавлять несколько раз
+            // Разрешение на ручной ввод
+            cell.textField.isUserInteractionEnabled = true // ввод адреса только с карты
+            
+            // Удаляем старые цели, чтобы не добавлять несколько раз. настройка кнопки пина
             cell.mapButton.removeTarget(nil, action: nil, for: .allEvents)
             cell.mapButton.addTarget(self, action: #selector(openMapSelection), for: .touchUpInside)
+            
+            // Назначаем делегат для текстового поля
+            cell.textField.delegate = self
+            
             return cell
             
         case .type:
             let cell = tableView.dequeueReusableCell(withIdentifier: "TextFieldCell", for: indexPath) as! TextFieldTableViewCell
-            cell.textField.placeholder = "Тип кофе"
+            cell.textField.placeholder = "Тип напитка"
             cell.textField.text = type
-            cell.textField.inputView = typePicker
+            cell.textField.isUserInteractionEnabled = true // разрешение на ручной вввод
+            cell.showPickerButton(true) // Показываем кнопку для типа
+            // Убираем стандартный inputView, чтобы можно было вводить текст вручную
+            
+            cell.textField.inputView = nil
             
             let toolbar = UIToolbar()
             toolbar.sizeToFit()
-            let doneButton = UIBarButtonItem(title: "Готово", style: .plain, target: self, action: #selector(donePressed))
+            let doneButton = UIBarButtonItem(title: "Готово", style: .done, target: self, action: #selector(typePickerDonePressed))
             toolbar.setItems([doneButton], animated: false)
             cell.textField.inputAccessoryView = toolbar
+            
+            // действие на кнопку pickerButton для вызова Picker
+            cell.pickerButton.removeTarget(nil, action: nil, for: .allEvents)
+            cell.pickerButton.addTarget(self, action: #selector(showTypePicker), for: .touchUpInside)
             
             cell.onTextChanged = { [weak self] text in
                 self?.type = text
             }
             cell.textField.delegate = self
+            
+            
+            if let selectedIndex = selectedTypeIndex {
+                typePicker.selectRow(selectedIndex, inComponent: 0, animated: false)
+            }
+            
+            
             return cell
             
         case .rating:
@@ -184,9 +208,9 @@ class AddCoffeeShopViewController: UITableViewController, UIImagePickerControlle
             return cell
         }
     }
-
-
-             
+    
+    
+    
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         guard let cellType = AddPlaceCell(rawValue: indexPath.row) else {
@@ -198,10 +222,10 @@ class AddCoffeeShopViewController: UITableViewController, UIImagePickerControlle
         case .photo:
             showPhotoSourceSelection()
         case .location:
-            let mapSelectionVC = MapSelectionViewController()
-            mapSelectionVC.delegate = self
-            mapSelectionVC.modalPresentationStyle = .fullScreen
-            present(mapSelectionVC, animated: true)
+            // фокусируемся на текстовом поле
+            if let cell = tableView.cellForRow(at: indexPath) as? LocationTableViewCell {
+                cell.textField.becomeFirstResponder()
+            }
         default:
             break
         }
@@ -209,20 +233,59 @@ class AddCoffeeShopViewController: UITableViewController, UIImagePickerControlle
         tableView.deselectRow(at: indexPath, animated: true)
     }
     
+    override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        guard let cellType = AddPlaceCell(rawValue: indexPath.row) else { return 44 }
+        switch cellType {
+        case .photo:
+            return 216
+        case .location, .name, .type:
+            return 56
+        case .rating:
+            return 60
+        }
+        
+        
+        
+        
+    }
     
-// обработчик кнопки для карты в адресс
-
-@objc func openMapSelection() {
-    let mapSelectionVC = MapSelectionViewController()
-    mapSelectionVC.delegate = self
-    mapSelectionVC.modalPresentationStyle = .fullScreen
-    present(mapSelectionVC, animated: true)
     
     
-}
-
-
-
+    // показ Picker при нажатии на кнопку
+    
+    @objc func showTypePicker() {
+        let indexPath = IndexPath(row: AddPlaceCell.type.rawValue, section: 0)
+        guard let cell = tableView.cellForRow(at: indexPath) as? TextFieldTableViewCell else { return }
+        
+        // Назначаем пикер как inputView
+        cell.textField.inputView = typePicker
+        
+        // Обновляем accessoryView для пикера (если нужно, можно переназначить)
+        
+        let toolbar = UIToolbar()
+        toolbar.sizeToFit()
+        let doneButton = UIBarButtonItem(title: "Done", style: .done, target: self, action: #selector(typePickerDonePressed))
+        toolbar.setItems([doneButton], animated: false)
+        cell.textField.inputAccessoryView = toolbar
+        
+        
+        cell.textField.becomeFirstResponder()
+    }
+    
+    
+    // обработчик кнопки для карты в адресс
+    
+    @objc func openMapSelection() {
+        let mapSelectionVC = MapSelectionViewController()
+        mapSelectionVC.delegate = self
+        mapSelectionVC.modalPresentationStyle = .fullScreen
+        present(mapSelectionVC, animated: true)
+        
+        
+    }
+    
+    
+    
     // закрытие пикера для выбора кофе
     
     @objc func donePressed() {
@@ -246,9 +309,9 @@ class AddCoffeeShopViewController: UITableViewController, UIImagePickerControlle
         // проверяем доступность камеры
         
         if UIImagePickerController.isSourceTypeAvailable(.camera) {
-                    alert.addAction(UIAlertAction(title: "Сделать фото", style: .default) { [weak self] _ in
-                        self?.presentImagePicker(sourceType: .camera)
-                    })
+            alert.addAction(UIAlertAction(title: "Сделать фото", style: .default) { [weak self] _ in
+                self?.presentImagePicker(sourceType: .camera)
+            })
         }
         
         // фото из голереи
@@ -339,15 +402,39 @@ class AddCoffeeShopViewController: UITableViewController, UIImagePickerControlle
         }
         
     }
-
+    
     func showAlert(message: String) {
         let alert = UIAlertController(title: "Ошибка", message: message, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .default))
         present(alert,animated: true)
     }
     
-
+    
+    @objc func typePickerDonePressed() {
+        guard let selectedIndex = selectedTypeIndex else { return }
+        
+        type = coffeeTypes[selectedIndex]
+        
+        // Обновляем текстовое поле с типом напитка
+        let indexPath = IndexPath(row: AddPlaceCell.type.rawValue, section: 0)
+        if let cell = tableView.cellForRow(at: indexPath) as? TextFieldTableViewCell {
+            cell.textField.text = type
+            cell.textField.resignFirstResponder()
+            
+            // Сбрасываем inputView, чтобы при следующем вводе показывалась клавиатура
+            
+            cell.textField.inputView = nil
+            
+            // Обновляем сохранённый selectedTypeIndex, если нужно
+            
+            selectedTypeIndex = selectedIndex
+        }
+    }
+    
+    
 }
+
+
 
 
 // MARK: - Расширение для UIPickerView
@@ -366,11 +453,12 @@ extension AddCoffeeShopViewController: UIPickerViewDelegate, UIPickerViewDataSou
         return coffeeTypes[row]
     }
     
-
+    
     
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
-        activeTextField?.text = coffeeTypes[row] //  coffeeTypes — ваш массив с типами кофе
-        type = coffeeTypes[row] // сохраняем выбранный тип в переменную
+        selectedTypeIndex = row
+        
+        
     }
     
     
@@ -382,20 +470,30 @@ extension AddCoffeeShopViewController: UITextFieldDelegate {
     func textFieldDidBeginEditing(_ textField: UITextField) {
         activeTextField = textField // Важно: запоминаем активное поле!
     }
-
+    
     func textFieldDidEndEditing(_ textField: UITextField) {
         activeTextField = nil // Сбрасываем, когда редактирование закончено
-        if textField == (tableView.cellForRow(at: IndexPath(row:AddPlaceCell.type.rawValue,section: 0)) as? TextFieldTableViewCell)?.textField {
-            if let selectedType = type, let index = coffeeTypes.firstIndex(of: selectedType) {
-                typePicker.selectRow(index, inComponent: 0, animated: false)
-            }
+        // Определяем, какое поле редактировалось
+        guard let indexPath = tableView.indexPathForRow(at: textField.convert(textField.bounds.origin, to: tableView)),
+              let cellType = AddPlaceCell(rawValue: indexPath.row) else { return }
+        
+        switch cellType {
+        case .name:
+            name = textField.text
+        case .location:
+            location = textField.text
+        case .type:
+            type = textField.text
+        default:
+            break
         }
+        
     }
 }
 
 
 extension AddCoffeeShopViewController: MapSelectionDelegate {
-
+    
     func didSelectLocation(coordinate: CLLocationCoordinate2D, address: String?) {
         // Обновляем поле адреса и сохраняем координаты
         location = address
