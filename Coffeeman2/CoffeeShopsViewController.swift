@@ -83,7 +83,10 @@ class CoffeeShopsViewController: UITableViewController {
     // Вызов при нажатии на кнопку "+" для добавления новой кофейни
     
     @objc func addCoffeeShop() {
-        showAddEditCoffeeShop()
+        let addVC = AddCoffeeShopViewController(style: .grouped)
+        // Оборачиваем в навигационный контроллер, чтобы появилась навигационная панель с кнопкой Cancel
+        let navController = UINavigationController(rootViewController: addVC)
+        present(navController, animated: true)
     }
     
     
@@ -96,8 +99,11 @@ class CoffeeShopsViewController: UITableViewController {
         } else {
             coffeeShop = fetchedResultsController.object(at: indexPath)
         }
-        showAddEditCoffeeShop(coffeeShop: coffeeShop) // передаем выбранную кофейню для редактирования
-        tableView.deselectRow(at: indexPath, animated: true)
+        
+        let editVC = AddCoffeeShopViewController(style: .grouped)
+        editVC.coffeeShopToEdit = coffeeShop
+        navigationController?.pushViewController(editVC, animated: true)
+            tableView.deselectRow(at: indexPath, animated: true)
     }
     
     // удаление кофейни по свайпу

@@ -54,10 +54,27 @@ class AddCoffeeShopViewController: UITableViewController, UIImagePickerControlle
         title = "New Place" // Заголовок экрана
         
         
+        if coffeeShopToEdit != nil {
+            // Режим редактирования - показываем стрелку назд
+            navigationItem.leftBarButtonItem = nil
+        } else {
+            navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(cancelTapped))
+        }
+        
+      
+        
+        
         
         // Добавляем кнопки Cancel и Save в навигационную панель
-        navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(cancelTapped))
+     
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .save, target: self, action: #selector(saveTapped))
+        
+        title = coffeeShopToEdit == nil ? "New Place" : "Edit Place"
+        
+        
+        
+        
+    
         
         
         tableView.keyboardDismissMode = .onDrag // Скрывать клавиатуру при прокрутке
@@ -133,11 +150,13 @@ class AddCoffeeShopViewController: UITableViewController, UIImagePickerControlle
             
         case .name:
             let cell = tableView.dequeueReusableCell(withIdentifier: "TextFieldCell", for: indexPath) as! TextFieldTableViewCell
-            cell.textField.placeholder = "Название кофейни"
+            cell.textField.placeholder = "Название заведения"
             cell.textField.text = name
             cell.textField.isUserInteractionEnabled = true
             cell.showPickerButton(false) // Скрываем кнопку для названия
             cell.onTextChanged = { [weak self] text in
+                cell.textField.delegate = self
+                cell.textField.returnKeyType = .done
                 self?.name = text
             }
             return cell
@@ -154,6 +173,7 @@ class AddCoffeeShopViewController: UITableViewController, UIImagePickerControlle
             
             // Назначаем делегат для текстового поля
             cell.textField.delegate = self
+            cell.textField.returnKeyType = .done
             
             return cell
             
@@ -164,14 +184,18 @@ class AddCoffeeShopViewController: UITableViewController, UIImagePickerControlle
             cell.textField.isUserInteractionEnabled = true // разрешение на ручной вввод
             cell.showPickerButton(true) // Показываем кнопку для типа
             // Убираем стандартный inputView, чтобы можно было вводить текст вручную
-            
+            cell.textField.inputAccessoryView = nil
             cell.textField.inputView = nil
+            cell.textField.returnKeyType = .done
             
             let toolbar = UIToolbar()
             toolbar.sizeToFit()
             let doneButton = UIBarButtonItem(title: "Готово", style: .done, target: self, action: #selector(typePickerDonePressed))
             toolbar.setItems([doneButton], animated: false)
-            cell.textField.inputAccessoryView = toolbar
+            
+            
+//            cell.textField.inputAccessoryView = toolbar
+            cell.textField.returnKeyType = .done
             
             // действие на кнопку pickerButton для вызова Picker
             cell.pickerButton.removeTarget(nil, action: nil, for: .allEvents)
@@ -269,6 +293,7 @@ class AddCoffeeShopViewController: UITableViewController, UIImagePickerControlle
         cell.textField.inputAccessoryView = toolbar
         
         
+        
         cell.textField.becomeFirstResponder()
     }
     
@@ -362,7 +387,7 @@ class AddCoffeeShopViewController: UITableViewController, UIImagePickerControlle
     
     @objc func cancelTapped() {
         
-        dismiss(animated: true) // Закрываем экран без сохранения
+        dismiss(animated: true, completion: nil) // Закрываем экран без сохранения
     }
     
     
@@ -427,7 +452,7 @@ class AddCoffeeShopViewController: UITableViewController, UIImagePickerControlle
             
             // Обновляем сохранённый selectedTypeIndex, если нужно
             
-            selectedTypeIndex = selectedIndex
+//            selectedTypeIndex = selectedIndex
         }
     }
     
@@ -484,11 +509,44 @@ extension AddCoffeeShopViewController: UITextFieldDelegate {
             location = textField.text
         case .type:
             type = textField.text
+            selectedTypeIndex = nil
         default:
             break
         }
         
     }
+    
+    
+    
+    
+    
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder() // скрыть клаву
+        
+        // сохранить введенный текст в соответствующую переменную
+        
+        guard let indexPath = tableView.indexPathForRow(at: textField.convert(textField.bounds.origin, to: tableView)),
+              let cellType = AddPlaceCell(rawValue: indexPath.row) else {
+            return true
+        }
+              
+        switch cellType {
+        case .name:
+            name = textField.text
+        case .location:
+            location = textField.text
+        case .type:
+            type = textField.text
+        default:
+            break
+        }
+        
+        return true
+        
+    }
+    
+    
+    
 }
 
 
@@ -497,7 +555,7 @@ extension AddCoffeeShopViewController: MapSelectionDelegate {
     func didSelectLocation(coordinate: CLLocationCoordinate2D, address: String?) {
         // Обновляем поле адреса и сохраняем координаты
         location = address
-        // Например, обновляем UI:
+        // обновляем UI:
         tableView.reloadRows(at: [IndexPath(row: AddPlaceCell.location.rawValue, section: 0)], with: .automatic)
     }
 }
