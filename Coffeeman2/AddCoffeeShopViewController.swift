@@ -9,6 +9,10 @@ import MapKit
 
 class AddCoffeeShopViewController: UITableViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, StarRatingViewDelegate {
     
+   
+
+    
+    
     
     
     let starRatingView = StarRatingView()
@@ -25,7 +29,13 @@ class AddCoffeeShopViewController: UITableViewController, UIImagePickerControlle
     
     var selectedTypeIndex: Int?
     
-    
+    lazy var pickerToolbar: UIToolbar = {
+        let toolbar = UIToolbar()
+        toolbar.sizeToFit()
+        let doneButton = UIBarButtonItem(title: "Done", style: .done, target: self, action: #selector(typePickerDonePressed))
+        toolbar.setItems([doneButton], animated: false)
+        return toolbar
+    }()
     
     
     
@@ -188,10 +198,7 @@ class AddCoffeeShopViewController: UITableViewController, UIImagePickerControlle
             cell.textField.inputView = nil
             cell.textField.returnKeyType = .done
             
-            let toolbar = UIToolbar()
-            toolbar.sizeToFit()
-            let doneButton = UIBarButtonItem(title: "Готово", style: .done, target: self, action: #selector(typePickerDonePressed))
-            toolbar.setItems([doneButton], animated: false)
+            
             
             
 //            cell.textField.inputAccessoryView = toolbar
@@ -278,22 +285,28 @@ class AddCoffeeShopViewController: UITableViewController, UIImagePickerControlle
     // показ Picker при нажатии на кнопку
     
     @objc func showTypePicker() {
+//        let indexPath = IndexPath(row: AddPlaceCell.type.rawValue, section: 0)
+//        guard let cell = tableView.cellForRow(at: indexPath) as? TextFieldTableViewCell else { return }
+//        
+//        // Назначаем пикер как inputView
+//        cell.textField.inputView = typePicker
+//        
+//        // Обновляем accessoryView для пикера (если нужно, можно переназначить)
+//        
+//        let toolbar = UIToolbar()
+//        toolbar.sizeToFit()
+//        let doneButton = UIBarButtonItem(title: "Done", style: .done, target: self, action: #selector(typePickerDonePressed))
+//        toolbar.setItems([doneButton], animated: false)
+//        cell.textField.inputAccessoryView = toolbar
+        
+        
         let indexPath = IndexPath(row: AddPlaceCell.type.rawValue, section: 0)
         guard let cell = tableView.cellForRow(at: indexPath) as? TextFieldTableViewCell else { return }
         
-        // Назначаем пикер как inputView
+        // Назначаем пикер и панель только для выбора из пикера
+        
         cell.textField.inputView = typePicker
-        
-        // Обновляем accessoryView для пикера (если нужно, можно переназначить)
-        
-        let toolbar = UIToolbar()
-        toolbar.sizeToFit()
-        let doneButton = UIBarButtonItem(title: "Done", style: .done, target: self, action: #selector(typePickerDonePressed))
-        toolbar.setItems([doneButton], animated: false)
-        cell.textField.inputAccessoryView = toolbar
-        
-        
-        
+        cell.textField.inputAccessoryView = pickerToolbar
         cell.textField.becomeFirstResponder()
     }
     
@@ -317,11 +330,15 @@ class AddCoffeeShopViewController: UITableViewController, UIImagePickerControlle
         // получаем выбранную строку в пикере
         
         let selectedRow = typePicker.selectedRow(inComponent: 0)
-        // Устанавливаем текст в активное поле и сохраняем выбранный тип
-        activeTextField?.text = coffeeTypes[selectedRow]
         type = coffeeTypes[selectedRow]
-        
-        activeTextField?.resignFirstResponder()
+        let indexPath = IndexPath(row: AddPlaceCell.type.rawValue, section: 0)
+        if let cell = tableView.cellForRow(at: indexPath) as? TextFieldTableViewCell {
+            cell.textField.text = type
+            cell.textField.inputView = nil
+            cell.textField.inputAccessoryView = nil
+            activeTextField?.resignFirstResponder()
+        }
+  
     }
     
     
@@ -421,12 +438,20 @@ class AddCoffeeShopViewController: UITableViewController, UIImagePickerControlle
         
         do {
             try context.save() // Сохраняем в Core Data
-            navigationController?.popToRootViewController(animated: true) // Возвращаемся на главный экран
+            // Закрываем экран после успешного сохранения
+            if navigationController?.viewControllers.first == self {
+                // Если это корневой контроллер в навигации — dismiss
+                dismiss(animated: true)
+            } else {
+                // иначе pop назад
+                navigationController?.popViewController(animated: true)
+            }
+            
         } catch {
             showAlert(message: "Ошибка сохранения: \(error.localizedDescription)")
         }
-        
     }
+    
     
     func showAlert(message: String) {
         let alert = UIAlertController(title: "Ошибка", message: message, preferredStyle: .alert)
@@ -444,15 +469,11 @@ class AddCoffeeShopViewController: UITableViewController, UIImagePickerControlle
         let indexPath = IndexPath(row: AddPlaceCell.type.rawValue, section: 0)
         if let cell = tableView.cellForRow(at: indexPath) as? TextFieldTableViewCell {
             cell.textField.text = type
-            cell.textField.resignFirstResponder()
-            
             // Сбрасываем inputView, чтобы при следующем вводе показывалась клавиатура
-            
             cell.textField.inputView = nil
-            
-            // Обновляем сохранённый selectedTypeIndex, если нужно
-            
-//            selectedTypeIndex = selectedIndex
+            cell.textField.inputAccessoryView = nil
+            cell.textField.resignFirstResponder()
+
         }
     }
     
@@ -494,6 +515,16 @@ extension AddCoffeeShopViewController: UIPickerViewDelegate, UIPickerViewDataSou
 extension AddCoffeeShopViewController: UITextFieldDelegate {
     func textFieldDidBeginEditing(_ textField: UITextField) {
         activeTextField = textField // Важно: запоминаем активное поле!
+        
+        // Если это поле "Тип напитка", сбрасываем inputView и inputAccessoryView
+        
+//        if let indexPath = tableView.indexPathForRow(at: textField.convert(textField.bounds.origin, to: tableView)),
+//           indexPath.row == AddPlaceCell.type.rawValue {
+//            textField.inputView = nil
+//            textField.inputAccessoryView = nil
+//            textField.returnKeyType = .done
+//        }
+        
     }
     
     func textFieldDidEndEditing(_ textField: UITextField) {

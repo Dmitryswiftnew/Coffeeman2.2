@@ -6,7 +6,14 @@ class CoffeeShopsViewController: UITableViewController {
     
     // NSFetchedResultsController для управления выборкой и обновлением таблицы
     var fetchedResultsController: NSFetchedResultsController<CoffeeShop>!
-   
+    
+    
+    // свойство для хранения отсортированных данных по имени
+    
+    var sortedByNameCoffeeShops: [CoffeeShop] = []
+    
+    
+    
     // Свойство контроллера поиска
     let searchController = UISearchController(searchResultsController: nil)
     
@@ -15,6 +22,18 @@ class CoffeeShopsViewController: UITableViewController {
     var isFiltering: Bool {
         return searchController.isActive && !(searchController.searchBar.text?.isEmpty ?? true)
     }
+    
+    var isRatingAscending = false // По умолчанию сортировка по убыванию
+    
+    
+    
+    private let sortSegmentedControl: UISegmentedControl  = {
+        let control = UISegmentedControl(items: ["Date", "Name"])
+        control.selectedSegmentIndex = 0 // по дефолту сортировка по дате
+        control.translatesAutoresizingMaskIntoConstraints = false
+        return control
+    }()
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -25,27 +44,111 @@ class CoffeeShopsViewController: UITableViewController {
         // Инициализируем fetchedResultsController
         initializeFetchedResultsController()
         
+        // Применяем сортировку сразу
+        updateSortDescriptor()
+        
+        updateRatingSortButton() // сортировка по рейтингу
+        
         // Кнопка "+" для добавления новой кофейни
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addCoffeeShop))
         
-        tableView.register(CoffeeShopTableViewCell.self, forCellReuseIdentifier: "CoffeeShopCell") // регистрация ячейки
+        tableView.register(CoffeeShopTableViewCell.self, forCellReuseIdentifier: "CoffeeShopCell")
         tableView.rowHeight = 75
-
-    
+        
         // Настройка searchController
         searchController.searchResultsUpdater = self
         searchController.obscuresBackgroundDuringPresentation = false
-        searchController.searchBar.placeholder = "Поиск кофеен"
-        navigationController?.navigationBar.prefersLargeTitles = false
-        navigationItem.largeTitleDisplayMode = .never
-        navigationItem.hidesSearchBarWhenScrolling = false
+        searchController.searchBar.placeholder = "Search"
         navigationItem.searchController = searchController
+        navigationItem.hidesSearchBarWhenScrolling = false
         definesPresentationContext = true
-      
-   
+        
+        // Создаём контейнер для segmented control
+        let segmentedContainer = UIView()
+        segmentedContainer.addSubview(sortSegmentedControl)
+        sortSegmentedControl.translatesAutoresizingMaskIntoConstraints = false
+        
+        NSLayoutConstraint.activate([
+            sortSegmentedControl.topAnchor.constraint(equalTo: segmentedContainer.topAnchor, constant: 8),
+            sortSegmentedControl.leadingAnchor.constraint(equalTo: segmentedContainer.leadingAnchor, constant: 16),
+            sortSegmentedControl.trailingAnchor.constraint(equalTo: segmentedContainer.trailingAnchor, constant: -16),
+            sortSegmentedControl.bottomAnchor.constraint(equalTo: segmentedContainer.bottomAnchor, constant: -8)
+        ])
+        
+        // Обязательно задаём frame контейнеру
+        segmentedContainer.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
+        
+        // Добавляем контейнер с segmented control в header таблицы
+        tableView.tableHeaderView = segmentedContainer
+        
+        // Добавляем обработчик изменения сегмента
+        sortSegmentedControl.addTarget(self, action: #selector(sortSegmentChanged), for: .valueChanged)
     }
- 
-   
+    
+    
+    
+    @objc func sortSegmentChanged() {
+        updateSortDescriptor()
+        tableView.reloadData()
+    }
+    
+    
+    // меняем сортировку выборки
+    
+    func updateSortDescriptor() {
+        if sortSegmentedControl.selectedSegmentIndex == 0 {
+            
+            // Сортировка по дате через Core Data
+            let sortDescriptor = NSSortDescriptor(key: "dateAdded", ascending: false)
+            fetchedResultsController.fetchRequest.sortDescriptors = [sortDescriptor]
+            do {
+                try fetchedResultsController.performFetch()
+            } catch {
+                print("Ошибка сортировки: \(error.localizedDescription)")
+            }
+            tableView.reloadData()
+            
+        } else {
+            // Сортировка по имени через Core Data
+            let sortDescriptor = NSSortDescriptor(key: "name", ascending: true, selector: #selector(NSString.localizedStandardCompare(_:)))
+            fetchedResultsController.fetchRequest.sortDescriptors = [sortDescriptor]
+            do {
+                try fetchedResultsController.performFetch()
+            } catch {
+                printContent("Ошибка сортировки: \(error.localizedDescription)")
+            }
+            tableView.reloadData()
+        }
+        
+    }
+    
+    func updateRatingSortButton() {
+        let title = isRatingAscending ? "▲" : "▼" // стрелки вверх/вниз в тексте
+        let sortButton = UIBarButtonItem(title: title, style: .plain, target: self, action: #selector(toggleRatingSort))
+        navigationItem.leftBarButtonItem = sortButton
+        
+    }
+    
+    @objc func toggleRatingSort() {
+        isRatingAscending.toggle()
+        updateRatingSortButton()
+        sortByRating()
+    }
+    
+    
+    func sortByRating() {
+        let sortDescriptor = NSSortDescriptor(key: "rating", ascending: isRatingAscending)
+        fetchedResultsController.fetchRequest.sortDescriptors = [sortDescriptor]
+        do {
+            try fetchedResultsController.performFetch()
+        } catch {
+            print("Ошибка сортировки по рейтингу: \(error.localizedDescription)")
+        }
+        tableView.reloadData()
+    }
+    
+    
+    
     
     
     
@@ -103,7 +206,7 @@ class CoffeeShopsViewController: UITableViewController {
         let editVC = AddCoffeeShopViewController(style: .grouped)
         editVC.coffeeShopToEdit = coffeeShop
         navigationController?.pushViewController(editVC, animated: true)
-            tableView.deselectRow(at: indexPath, animated: true)
+        tableView.deselectRow(at: indexPath, animated: true)
     }
     
     // удаление кофейни по свайпу
@@ -116,7 +219,7 @@ class CoffeeShopsViewController: UITableViewController {
             // получаем контекст Core Data
             let context = PersistenceManager.shared.context
             
-        // удаляем объект из контекста
+            // удаляем объект из контекста
             
             context.delete(coffeeShopToDelete)
             
@@ -137,7 +240,7 @@ class CoffeeShopsViewController: UITableViewController {
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-//        return fetchedResultsController.sections?[section].numberOfObjects ?? 0
+        
         
         if isFiltering {
             return filteredCoffeeShops.count
@@ -146,7 +249,7 @@ class CoffeeShopsViewController: UITableViewController {
         }
     }
     
-  
+    
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         // Используем кастомную ячейку
         let cell = tableView.dequeueReusableCell(withIdentifier: "CoffeeShopCell", for: indexPath) as! CoffeeShopTableViewCell
@@ -156,6 +259,7 @@ class CoffeeShopsViewController: UITableViewController {
         } else {
             coffeeShop = fetchedResultsController.object(at: indexPath)
         }
+        
         cell.configure(with: coffeeShop)
         return cell
     }
@@ -201,7 +305,7 @@ extension CoffeeShopsViewController: NSFetchedResultsControllerDelegate {
             break
         }
     }
-
+    
 }
 
 
