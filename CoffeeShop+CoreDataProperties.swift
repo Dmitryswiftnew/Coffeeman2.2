@@ -26,6 +26,7 @@ extension CoffeeShop {
     @NSManaged public var rating: Int16
     @NSManaged public var type: String?
     @NSManaged public var drinks: NSSet?
+    @NSManaged public var roastingLevel: Int16
 
 }
 

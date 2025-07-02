@@ -9,12 +9,6 @@ import MapKit
 
 class AddCoffeeShopViewController: UITableViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, StarRatingViewDelegate {
     
-   
-
-    
-    
-    
-    
     let starRatingView = StarRatingView()
     
     // список типов кофе
@@ -24,6 +18,11 @@ class AddCoffeeShopViewController: UITableViewController, UIImagePickerControlle
     
     var typePicker = UIPickerView()// UIPickerView для выбора типа кофе
     var activeTextField: UITextField?  // Текущее активное текстовое поле для связи с UIPickerView
+    
+    
+    var isCharacteristicsExpanded = false
+    var selectedRoastingIndex: Int = 1
+    var intensityValue: Float = 0.0
     
     var coffeeShopToEdit: CoffeeShop?
     
@@ -47,6 +46,7 @@ class AddCoffeeShopViewController: UITableViewController, UIImagePickerControlle
         case location
         case type
         case rating
+        case expandCharacteristics
     }
     
     // MARK: - Свойство для хранения данных формы
@@ -71,20 +71,20 @@ class AddCoffeeShopViewController: UITableViewController, UIImagePickerControlle
             navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(cancelTapped))
         }
         
-      
+        
         
         
         
         // Добавляем кнопки Cancel и Save в навигационную панель
-     
+        
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .save, target: self, action: #selector(saveTapped))
         
         title = coffeeShopToEdit == nil ? "New Place" : "Edit Place"
         
+        // для дополнительной секции с характеристиками
+        //        navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Характеристики", style: .plain, target: self, action: #selector(toggleCharacteristicsSection))
         
         
-        
-    
         
         
         tableView.keyboardDismissMode = .onDrag // Скрывать клавиатуру при прокрутке
@@ -93,10 +93,9 @@ class AddCoffeeShopViewController: UITableViewController, UIImagePickerControlle
         // Регистрируем кастомные ячейки для фото и текстовых полей
         tableView.register(PhotoTableViewCell.self, forCellReuseIdentifier: "PhotoCell")
         tableView.register(TextFieldTableViewCell.self, forCellReuseIdentifier: "TextFieldCell")
-        
         tableView.register(LocationTableViewCell.self, forCellReuseIdentifier: "LocationCell")
         
-        
+        tableView.register(IntensityTableViewCell.self, forCellReuseIdentifier: "IntensityCell")
         
         // настраиваем UIPickerView
         
@@ -123,8 +122,10 @@ class AddCoffeeShopViewController: UITableViewController, UIImagePickerControlle
         }
         
         // делегат для обновления рейтинга
-        
         starRatingView.delegate = self
+        if let coffeeShop = coffeeShopToEdit {
+            selectedRoastingIndex = Int(coffeeShop.roastingLevel)
+        }
         
         
     }
@@ -139,132 +140,227 @@ class AddCoffeeShopViewController: UITableViewController, UIImagePickerControlle
     
     // MARK: - Table view data source
     
-    override func numberOfSections(in tableView: UITableView) -> Int { 1 }
+    override func numberOfSections(in tableView: UITableView) -> Int {
+        return 1 + (isCharacteristicsExpanded ? 1 : 0)
+    }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        AddPlaceCell.allCases.count // Количество ячеек равно числу элементов enum
+        if section == 0 {
+            return AddPlaceCell.allCases.count
+        } else if section == 1 && isCharacteristicsExpanded {
+            return 3 // Количество характеристик: обжарка и кислотность
+        }
+        return 0
     }
     
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cellType = AddPlaceCell(rawValue: indexPath.row) else {
-            // Безопасный выход, если индекс вне диапазона
-            return UITableViewCell()
-        }
+        let baseSectionsCount = 1 // количество базовых секций
         
-        switch cellType {
-        case .photo:
-            let cell = tableView.dequeueReusableCell(withIdentifier: "PhotoCell", for: indexPath) as! PhotoTableViewCell
-            cell.photoImageView.image = selectedImage ?? UIImage(systemName: "photo")
-            return cell
+        if indexPath.section == 0 {
             
-        case .name:
-            let cell = tableView.dequeueReusableCell(withIdentifier: "TextFieldCell", for: indexPath) as! TextFieldTableViewCell
-            cell.textField.placeholder = "Название заведения"
-            cell.textField.text = name
-            cell.textField.isUserInteractionEnabled = true
-            cell.showPickerButton(false) // Скрываем кнопку для названия
-            cell.onTextChanged = { [weak self] text in
+            // Базовая секция
+            guard let cellType = AddPlaceCell(rawValue: indexPath.row) else {
+                // Безопасный выход, если индекс вне диапазона
+                return UITableViewCell()
+            }
+            
+            switch cellType {
+            case .photo:
+                let cell = tableView.dequeueReusableCell(withIdentifier: "PhotoCell", for: indexPath) as! PhotoTableViewCell
+                cell.photoImageView.image = selectedImage ?? UIImage(systemName: "photo")
+                return cell
+                
+            case .name:
+                let cell = tableView.dequeueReusableCell(withIdentifier: "TextFieldCell", for: indexPath) as! TextFieldTableViewCell
+                cell.textField.placeholder = "Название заведения"
+                cell.textField.text = name
+                cell.textField.isUserInteractionEnabled = true
+                cell.showPickerButton(false) // Скрываем кнопку для названия
+                cell.onTextChanged = { [weak self] text in
+                    cell.textField.delegate = self
+                    cell.textField.returnKeyType = .done
+                    self?.name = text
+                }
+                return cell
+                
+            case .location:
+                let cell = tableView.dequeueReusableCell(withIdentifier: "LocationCell", for: indexPath) as! LocationTableViewCell
+                cell.textField.text = location
+                // Разрешение на ручной ввод
+                cell.textField.isUserInteractionEnabled = true // ввод адреса только с карты
+                
+                // Удаляем старые цели, чтобы не добавлять несколько раз. настройка кнопки пина
+                cell.mapButton.removeTarget(nil, action: nil, for: .allEvents)
+                cell.mapButton.addTarget(self, action: #selector(openMapSelection), for: .touchUpInside)
+                
+                // Назначаем делегат для текстового поля
                 cell.textField.delegate = self
                 cell.textField.returnKeyType = .done
-                self?.name = text
+                
+                return cell
+                
+            case .type:
+                let cell = tableView.dequeueReusableCell(withIdentifier: "TextFieldCell", for: indexPath) as! TextFieldTableViewCell
+                cell.textField.placeholder = "Тип напитка"
+                cell.textField.text = type
+                cell.textField.isUserInteractionEnabled = true // разрешение на ручной вввод
+                cell.showPickerButton(true) // Показываем кнопку для типа
+                // Убираем стандартный inputView, чтобы можно было вводить текст вручную
+                cell.textField.inputAccessoryView = nil
+                cell.textField.inputView = nil
+                cell.textField.returnKeyType = .done
+                
+                
+                cell.textField.returnKeyType = .done
+                
+                // действие на кнопку pickerButton для вызова Picker
+                cell.pickerButton.removeTarget(nil, action: nil, for: .allEvents)
+                cell.pickerButton.addTarget(self, action: #selector(showTypePicker), for: .touchUpInside)
+                
+                cell.onTextChanged = { [weak self] text in
+                    self?.type = text
+                }
+                cell.textField.delegate = self
+                
+                
+                if let selectedIndex = selectedTypeIndex {
+                    typePicker.selectRow(selectedIndex, inComponent: 0, animated: false)
+                }
+                
+                
+                return cell
+                
+            case .rating:
+                let cell = UITableViewCell()
+                cell.selectionStyle = .none
+                
+                if starRatingView.superview == nil {
+                    starRatingView.translatesAutoresizingMaskIntoConstraints = false
+                    cell.contentView.addSubview(starRatingView)
+                    NSLayoutConstraint.activate([
+                        starRatingView.centerYAnchor.constraint(equalTo: cell.contentView.centerYAnchor),
+                        starRatingView.centerXAnchor.constraint(equalTo: cell.contentView.centerXAnchor),
+                        starRatingView.heightAnchor.constraint(equalToConstant: 60),
+                        starRatingView.widthAnchor.constraint(equalToConstant: 250)
+                    ])
+                }
+                starRatingView.isEditable = true
+                return cell
+                
+            case .expandCharacteristics:
+                
+                let cell = UITableViewCell(style: .default, reuseIdentifier: "ExpandCell")
+                cell.textLabel?.text = isCharacteristicsExpanded ? "Fade characteristics" : "Add characteristics"
+                cell.textLabel?.textAlignment = .center
+                cell.textLabel?.textColor = view.tintColor
+                
+                let imageName = isCharacteristicsExpanded ? "chevron.up" : "chevron.down"
+                let arrowImage = UIImage(systemName: imageName)
+                let arrowImageView = UIImageView(image: arrowImage)
+                arrowImageView.tintColor = view.tintColor
+                cell.accessoryView = arrowImageView
+                return cell
             }
-            return cell
-            
-        case .location:
-            let cell = tableView.dequeueReusableCell(withIdentifier: "LocationCell", for: indexPath) as! LocationTableViewCell
-            cell.textField.text = location
-            // Разрешение на ручной ввод
-            cell.textField.isUserInteractionEnabled = true // ввод адреса только с карты
-            
-            // Удаляем старые цели, чтобы не добавлять несколько раз. настройка кнопки пина
-            cell.mapButton.removeTarget(nil, action: nil, for: .allEvents)
-            cell.mapButton.addTarget(self, action: #selector(openMapSelection), for: .touchUpInside)
-            
-            // Назначаем делегат для текстового поля
-            cell.textField.delegate = self
-            cell.textField.returnKeyType = .done
-            
-            return cell
-            
-        case .type:
-            let cell = tableView.dequeueReusableCell(withIdentifier: "TextFieldCell", for: indexPath) as! TextFieldTableViewCell
-            cell.textField.placeholder = "Тип напитка"
-            cell.textField.text = type
-            cell.textField.isUserInteractionEnabled = true // разрешение на ручной вввод
-            cell.showPickerButton(true) // Показываем кнопку для типа
-            // Убираем стандартный inputView, чтобы можно было вводить текст вручную
-            cell.textField.inputAccessoryView = nil
-            cell.textField.inputView = nil
-            cell.textField.returnKeyType = .done
-            
-            
-            
-            
-//            cell.textField.inputAccessoryView = toolbar
-            cell.textField.returnKeyType = .done
-            
-            // действие на кнопку pickerButton для вызова Picker
-            cell.pickerButton.removeTarget(nil, action: nil, for: .allEvents)
-            cell.pickerButton.addTarget(self, action: #selector(showTypePicker), for: .touchUpInside)
-            
-            cell.onTextChanged = { [weak self] text in
-                self?.type = text
-            }
-            cell.textField.delegate = self
-            
-            
-            if let selectedIndex = selectedTypeIndex {
-                typePicker.selectRow(selectedIndex, inComponent: 0, animated: false)
-            }
-            
-            
-            return cell
-            
-        case .rating:
-            let cell = UITableViewCell()
-            cell.selectionStyle = .none
-            
-            if starRatingView.superview == nil {
-                starRatingView.translatesAutoresizingMaskIntoConstraints = false
-                cell.contentView.addSubview(starRatingView)
-                NSLayoutConstraint.activate([
-                    starRatingView.centerYAnchor.constraint(equalTo: cell.contentView.centerYAnchor),
-                    starRatingView.centerXAnchor.constraint(equalTo: cell.contentView.centerXAnchor),
-                    starRatingView.heightAnchor.constraint(equalToConstant: 60),
-                    starRatingView.widthAnchor.constraint(equalToConstant: 250)
-                ])
-            }
-            starRatingView.isEditable = true
-            return cell
         }
+        else if indexPath.section == 1 {
+            if indexPath.row == 0 {
+                let cell = UITableViewCell(style: .default, reuseIdentifier: "RostingCell")
+                cell.textLabel?.text = "Cтепень обжарки"
+                // Создаём Segmented Control
+                let roastingControl = UISegmentedControl(items: ["Light", "Medium", "Dark"])
+                
+                let colors: [UIColor] = [
+                    UIColor.brown.withAlphaComponent(0.6),
+                    UIColor.brown,
+                    UIColor.black
+                ]
+                
+                for index in 0..<roastingControl.numberOfSegments {
+                
+                    let attributes: [NSAttributedString.Key: Any] = [
+                        .foregroundColor: colors[index]
+                    ]
+                    roastingControl.setTitleTextAttributes(attributes, for: .normal)
+                   
+                }
+                roastingControl.setTitleTextAttributes([.foregroundColor: UIColor.white], for: .selected)
+                roastingControl.selectedSegmentTintColor = UIColor.brown
+                roastingControl.selectedSegmentIndex = selectedRoastingIndex
+                
+                
+                roastingControl.addTarget(self, action: #selector(roastingChanged(_:)), for: .valueChanged)
+                roastingControl.translatesAutoresizingMaskIntoConstraints = false
+                cell.contentView.addSubview(roastingControl)
+                
+                NSLayoutConstraint.activate([
+                    roastingControl.centerYAnchor.constraint(equalTo: cell.contentView.centerYAnchor),
+                    roastingControl.trailingAnchor.constraint(equalTo: cell.contentView.trailingAnchor, constant: -16),
+                    roastingControl.widthAnchor.constraint(equalToConstant: 200)
+                ])
+                return cell
+                
+            } else if indexPath.row == 1 {
+                let cell = UITableViewCell(style: .default, reuseIdentifier: "AcidityCell")
+                cell.textLabel?.text = "Кислотность"
+                return cell            }
+            
+        }
+        
+        return UITableViewCell()
     }
     
     
-    
-    
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        guard let cellType = AddPlaceCell(rawValue: indexPath.row) else {
-            tableView.deselectRow(at: indexPath, animated: true)
-            return
-        }
-        
-        switch cellType {
-        case .photo:
-            showPhotoSourceSelection()
-        case .location:
-            // фокусируемся на текстовом поле
-            if let cell = tableView.cellForRow(at: indexPath) as? LocationTableViewCell {
-                cell.textField.becomeFirstResponder()
+        if indexPath.section == 0 {
+            guard let cellType = AddPlaceCell(rawValue: indexPath.row) else {
+                tableView.deselectRow(at: indexPath, animated: true)
+                return
             }
-        default:
-            break
+            
+            switch cellType {
+            case .photo:
+                showPhotoSourceSelection()
+            case .location:
+                // фокусируемся на текстовом поле
+                if let cell = tableView.cellForRow(at: indexPath) as? LocationTableViewCell {
+                    cell.textField.becomeFirstResponder()
+                }
+            case .expandCharacteristics:
+                // Обработка раскрытия/сворачивания характеристик, если кнопка в ячейке
+                isCharacteristicsExpanded.toggle()
+                let characteristicsSectionIndex = 1
+                tableView.beginUpdates()
+                if isCharacteristicsExpanded {
+                    tableView.insertSections(IndexSet(integer: characteristicsSectionIndex), with: .fade)
+                } else {
+                    tableView.deleteSections(IndexSet(integer: characteristicsSectionIndex), with: .fade)
+                }
+                tableView.reloadRows(at: [indexPath], with: .automatic)
+                tableView.endUpdates()
+            default:
+                break
+            }
+            } else if indexPath.section == 1 {
+                // Обработка нажатий по характеристикам
+                if indexPath.row == 0 {
+                // Например, показать UISegmentedControl для обжарки или открыть дополнительный контрол
+                    print("Tapped on Степень обжарки")
+            } else if indexPath.row == 1 {
+                // Обработка кислотности
+                           print("Tapped on Кислотность")
+            }
+        
+       
         }
         
+        
+       
         tableView.deselectRow(at: indexPath, animated: true)
     }
     
     override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        if indexPath.section == 0 {
         guard let cellType = AddPlaceCell(rawValue: indexPath.row) else { return 44 }
         switch cellType {
         case .photo:
@@ -272,33 +368,22 @@ class AddCoffeeShopViewController: UITableViewController, UIImagePickerControlle
         case .location, .name, .type:
             return 56
         case .rating:
-            return 60
+            return 44
+        case .expandCharacteristics:
+            return 44
         }
+    } else if indexPath.section == 1 {
         
-        
-        
-        
+        return 44
     }
     
+    return 44
     
-    
+}
     // показ Picker при нажатии на кнопку
     
     @objc func showTypePicker() {
-//        let indexPath = IndexPath(row: AddPlaceCell.type.rawValue, section: 0)
-//        guard let cell = tableView.cellForRow(at: indexPath) as? TextFieldTableViewCell else { return }
-//        
-//        // Назначаем пикер как inputView
-//        cell.textField.inputView = typePicker
-//        
-//        // Обновляем accessoryView для пикера (если нужно, можно переназначить)
-//        
-//        let toolbar = UIToolbar()
-//        toolbar.sizeToFit()
-//        let doneButton = UIBarButtonItem(title: "Done", style: .done, target: self, action: #selector(typePickerDonePressed))
-//        toolbar.setItems([doneButton], animated: false)
-//        cell.textField.inputAccessoryView = toolbar
-        
+//
         
         let indexPath = IndexPath(row: AddPlaceCell.type.rawValue, section: 0)
         guard let cell = tableView.cellForRow(at: indexPath) as? TextFieldTableViewCell else { return }
@@ -309,6 +394,15 @@ class AddCoffeeShopViewController: UITableViewController, UIImagePickerControlle
         cell.textField.inputAccessoryView = pickerToolbar
         cell.textField.becomeFirstResponder()
     }
+    
+    // бработчик изменения выбора сегмента для степени обжарки
+    
+    @objc func roastingChanged(_ sender: UISegmentedControl) {
+        selectedRoastingIndex = sender.selectedSegmentIndex
+        print("Выбрана степень обжарки: \(sender.titleForSegment(at: selectedRoastingIndex) ?? "")")
+           // Здесь можно добавить сохранение в модель, если нужно
+    }
+    
     
     
     // обработчик кнопки для карты в адресс
@@ -322,6 +416,19 @@ class AddCoffeeShopViewController: UITableViewController, UIImagePickerControlle
         
     }
     
+    @objc func toggleCharacteristicsSection() {
+        isCharacteristicsExpanded.toggle()
+        let characteristicsSectionIndex = 1
+        
+        tableView.beginUpdates()
+        
+        if isCharacteristicsExpanded {
+            tableView.insertSections(IndexSet(integer: characteristicsSectionIndex), with: .fade)
+        } else {
+            tableView.deleteSections(IndexSet(integer: characteristicsSectionIndex), with: .fade)
+        }
+        tableView.endUpdates()
+    }
     
     
     // закрытие пикера для выбора кофе
@@ -450,6 +557,8 @@ class AddCoffeeShopViewController: UITableViewController, UIImagePickerControlle
         } catch {
             showAlert(message: "Ошибка сохранения: \(error.localizedDescription)")
         }
+        
+        coffeeShop.roastingLevel = Int16(selectedRoastingIndex)
     }
     
     

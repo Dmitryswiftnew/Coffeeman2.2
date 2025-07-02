@@ -123,10 +123,18 @@ class CoffeeShopsViewController: UITableViewController {
     }
     
     func updateRatingSortButton() {
-        let title = isRatingAscending ? "▲" : "▼" // стрелки вверх/вниз в тексте
-        let sortButton = UIBarButtonItem(title: title, style: .plain, target: self, action: #selector(toggleRatingSort))
-        navigationItem.leftBarButtonItem = sortButton
+        let symbolName = isRatingAscending ? "arrow.up" : "arrow.down"
         
+        if let image = UIImage(systemName: symbolName) {
+            let sortButton = UIBarButtonItem(image: image, style: .plain, target: self, action: #selector(toggleRatingSort))
+            navigationItem.leftBarButtonItem = sortButton
+        } else {
+            // На случай, если изображение не загрузилось, показываем текст
+            let title = isRatingAscending ? "▲" : "▼"
+            let sortButton = UIBarButtonItem(title: title, style: .plain, target: self, action: #selector(toggleRatingSort))
+            navigationItem.leftBarButtonItem = sortButton
+        }
+  
     }
     
     @objc func toggleRatingSort() {
