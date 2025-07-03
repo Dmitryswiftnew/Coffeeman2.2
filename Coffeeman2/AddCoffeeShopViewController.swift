@@ -24,6 +24,10 @@ class AddCoffeeShopViewController: UITableViewController, UIImagePickerControlle
     var selectedRoastingIndex: Int = 1
     var intensityValue: Float = 0.0
     
+    var selectedAcidityLevel: Int = 0
+    
+    
+    
     var coffeeShopToEdit: CoffeeShop?
     
     var selectedTypeIndex: Int?
@@ -63,6 +67,12 @@ class AddCoffeeShopViewController: UITableViewController, UIImagePickerControlle
         
         title = "New Place" // Заголовок экрана
         
+        if #available(iOS 15.0, *) {               // между секциями
+            tableView.sectionHeaderTopPadding = 0
+        }
+        
+        tableView.rowHeight = UITableView.automaticDimension
+        tableView.estimatedRowHeight = 100
         
         if coffeeShopToEdit != nil {
             // Режим редактирования - показываем стрелку назд
@@ -96,6 +106,7 @@ class AddCoffeeShopViewController: UITableViewController, UIImagePickerControlle
         tableView.register(LocationTableViewCell.self, forCellReuseIdentifier: "LocationCell")
         
         tableView.register(IntensityTableViewCell.self, forCellReuseIdentifier: "IntensityCell")
+        tableView.register(AcidityTableViewCell.self, forCellReuseIdentifier: "AcidityCell")
         
         // настраиваем UIPickerView
         
@@ -114,6 +125,12 @@ class AddCoffeeShopViewController: UITableViewController, UIImagePickerControlle
             title = "Edit Place"
         }
         
+        if let coffeeShop = coffeeShopToEdit {
+            // Загрузка ранее сохранённого значения интенсивности
+            intensityValue = coffeeShop.intensityLevel
+        }
+        
+        
         
         // установка текущего рейтинга
         if let coffeeShop = coffeeShopToEdit {
@@ -127,6 +144,10 @@ class AddCoffeeShopViewController: UITableViewController, UIImagePickerControlle
             selectedRoastingIndex = Int(coffeeShop.roastingLevel)
         }
         
+        if let coffeeShop = coffeeShopToEdit {
+            selectedAcidityLevel = Int(coffeeShop.acidityLevel)
+        }
+        
         
     }
     
@@ -135,6 +156,26 @@ class AddCoffeeShopViewController: UITableViewController, UIImagePickerControlle
     func starRatingView(_ starRatingView: StarRatingView, didUpdate rating: Int) {
         // Здесь сохраняем новый рейтинг в локальное свойство контроллера, чтобы потом при сохранении в Core Data записать его
         self.currentRating = rating
+    }
+    
+    // MARK: - Header - Footer section
+    
+    override func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        return 0.01
+    }
+    
+    
+    override func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
+        return 0.01
+    }
+    
+    
+    override func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        return UIView(frame: .zero)
+    }
+
+    override func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
+        return UIView(frame: .zero)
     }
     
     
@@ -277,12 +318,12 @@ class AddCoffeeShopViewController: UITableViewController, UIImagePickerControlle
                 ]
                 
                 for index in 0..<roastingControl.numberOfSegments {
-                
+                    
                     let attributes: [NSAttributedString.Key: Any] = [
                         .foregroundColor: colors[index]
                     ]
                     roastingControl.setTitleTextAttributes(attributes, for: .normal)
-                   
+                    
                 }
                 roastingControl.setTitleTextAttributes([.foregroundColor: UIColor.white], for: .selected)
                 roastingControl.selectedSegmentTintColor = UIColor.brown
@@ -301,12 +342,34 @@ class AddCoffeeShopViewController: UITableViewController, UIImagePickerControlle
                 return cell
                 
             } else if indexPath.row == 1 {
-                let cell = UITableViewCell(style: .default, reuseIdentifier: "AcidityCell")
-                cell.textLabel?.text = "Кислотность"
-                return cell            }
-            
+                // Новая ячейка с слайдером Intensity
+                let cell = tableView.dequeueReusableCell(withIdentifier: "IntensityCell", for: indexPath) as! IntensityTableViewCell
+                cell.selectionStyle = .none // выделение ячейки 
+                cell.slider.value = intensityValue
+                updateSliderColor(slider: cell.slider, value: intensityValue)
+                cell.slider.addTarget(self, action: #selector(intensitySliderChanged(_:)), for: .valueChanged)
+                return cell
+            } else if indexPath.row == 2 {
+                // Ячейка для Кислотности
+                let cell = tableView.dequeueReusableCell(withIdentifier: "AcidityCell", for: indexPath) as! AcidityTableViewCell
+                // Устанавливаем текущее значение кислотности
+                cell.acidityLevel = selectedAcidityLevel // Int от 0 до 5
+                
+                // Обрабатываем изменение значения кислотности
+                cell.onAcidityChanged = { [weak self] newLevel in
+                    self?.selectedAcidityLevel = newLevel
+                    
+                    // Обновляем ячейку, чтобы отобразить выбранное состояние
+                    
+                    let acidityIndexPath = IndexPath(row: 2, section: 1)
+                    self?.tableView.reloadRows(at: [acidityIndexPath], with: .none)
+                    print("Выбрана кислотность: \(newLevel)")
+                }
+                
+                return cell
+            }
         }
-        
+            
         return UITableViewCell()
     }
     
@@ -346,7 +409,7 @@ class AddCoffeeShopViewController: UITableViewController, UIImagePickerControlle
                 if indexPath.row == 0 {
                 // Например, показать UISegmentedControl для обжарки или открыть дополнительный контрол
                     print("Tapped on Степень обжарки")
-            } else if indexPath.row == 1 {
+            } else if indexPath.row == 2 {
                 // Обработка кислотности
                            print("Tapped on Кислотность")
             }
@@ -361,29 +424,27 @@ class AddCoffeeShopViewController: UITableViewController, UIImagePickerControlle
     
     override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         if indexPath.section == 0 {
-        guard let cellType = AddPlaceCell(rawValue: indexPath.row) else { return 44 }
-        switch cellType {
-        case .photo:
-            return 216
-        case .location, .name, .type:
-            return 56
-        case .rating:
-            return 44
-        case .expandCharacteristics:
-            return 44
+            guard let cellType = AddPlaceCell(rawValue: indexPath.row) else { return 44 }
+            switch cellType {
+            case .photo:
+                return 216
+            case .location, .name, .type:
+                return 56
+            case .rating, .expandCharacteristics:
+                return 44
+            }
+        } else if indexPath.section == 1 {
+            if indexPath.row == 1 {
+                return 100 // для Intensity (слайдера)
+            } else if indexPath.row == 2 {
+                return 90 // для Acidity (кнопок с заголовком)
+            }
+            return 44 // для RoastingLevel и других
         }
-    } else if indexPath.section == 1 {
-        
         return 44
-    }
-    
-    return 44
-    
-}
-    // показ Picker при нажатии на кнопку
+    }    // показ Picker при нажатии на кнопку
     
     @objc func showTypePicker() {
-//
         
         let indexPath = IndexPath(row: AddPlaceCell.type.rawValue, section: 0)
         guard let cell = tableView.cellForRow(at: indexPath) as? TextFieldTableViewCell else { return }
@@ -447,6 +508,43 @@ class AddCoffeeShopViewController: UITableViewController, UIImagePickerControlle
         }
   
     }
+    
+    
+    // изменение цвета слайдера
+    
+    func updateSliderColor(slider: UISlider, value: Float) {
+       // Интерполируем цвет от белого (0) к красному (10)
+        let normalized = CGFloat(value / 10.0)
+        
+        let white = UIColor.white
+        let darkBrown = UIColor(red: 0.4, green: 0.1, blue: 0.0, alpha: 1.0)
+        
+        // Интерполируем компоненты цвета между белым и тёмно-коричневым
+        var whiteR: CGFloat = 0, whiteG: CGFloat = 0, whiteB: CGFloat = 0, whiteA: CGFloat = 0
+        var darkR: CGFloat = 0, darkG: CGFloat = 0, darkB: CGFloat = 0, darkA: CGFloat = 0
+        
+        white.getRed(&whiteR, green: &whiteG, blue: &whiteB, alpha: &whiteA)
+         darkBrown.getRed(&darkR, green: &darkG, blue: &darkB, alpha: &darkA)
+         
+         let r = whiteR + (darkR - whiteR) * normalized
+         let g = whiteG + (darkG - whiteG) * normalized
+         let b = whiteB + (darkB - whiteB) * normalized
+        
+        let interpolatedColor = UIColor(red: r, green: g, blue: b, alpha: 1.0)
+        
+        slider.minimumTrackTintColor = interpolatedColor
+    }
+    
+    // обработчик изменения слайдера
+    
+    @objc func intensitySliderChanged(_ sender: UISlider) {
+        let steppedValue = round(sender.value) // округляем до целого
+        sender.value = steppedValue
+        intensityValue = steppedValue
+        
+        updateSliderColor(slider: sender, value: intensityValue)
+    }
+    
     
     
     
@@ -559,6 +657,8 @@ class AddCoffeeShopViewController: UITableViewController, UIImagePickerControlle
         }
         
         coffeeShop.roastingLevel = Int16(selectedRoastingIndex)
+        coffeeShop.intensityLevel = intensityValue
+        coffeeShop.acidityLevel = Int16(selectedAcidityLevel)
     }
     
     
@@ -624,16 +724,7 @@ extension AddCoffeeShopViewController: UIPickerViewDelegate, UIPickerViewDataSou
 extension AddCoffeeShopViewController: UITextFieldDelegate {
     func textFieldDidBeginEditing(_ textField: UITextField) {
         activeTextField = textField // Важно: запоминаем активное поле!
-        
-        // Если это поле "Тип напитка", сбрасываем inputView и inputAccessoryView
-        
-//        if let indexPath = tableView.indexPathForRow(at: textField.convert(textField.bounds.origin, to: tableView)),
-//           indexPath.row == AddPlaceCell.type.rawValue {
-//            textField.inputView = nil
-//            textField.inputAccessoryView = nil
-//            textField.returnKeyType = .done
-//        }
-        
+
     }
     
     func textFieldDidEndEditing(_ textField: UITextField) {
