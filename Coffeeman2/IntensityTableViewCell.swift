@@ -1,12 +1,8 @@
-//
-//  IntensityTableViewCell.swift
-//  Coffeeman2
-//
-//  Created by Dmitry on 2.07.25.
-//
+
 
 import Foundation
 import UIKit
+import CoreData
 
 
 class IntensityTableViewCell: UITableViewCell {

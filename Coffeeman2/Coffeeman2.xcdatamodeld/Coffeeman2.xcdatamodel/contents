@@ -16,12 +16,9 @@
         <relationship name="drinks" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Drink" inverseName="coffeeShop" inverseEntity="Drink"/>
     </entity>
     <entity name="Drink" representedClassName="Drink" syncable="YES">
-        <attribute name="acidityLevel" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="comment" optional="YES" attributeType="String"/>
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
-        <attribute name="intensity" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="name" optional="YES" attributeType="String"/>
-        <attribute name="roastingLevel" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <relationship name="coffeeShop" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CoffeeShop" inverseName="drinks" inverseEntity="CoffeeShop"/>
     </entity>
 </model>

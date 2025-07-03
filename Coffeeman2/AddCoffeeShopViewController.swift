@@ -65,9 +65,9 @@ class AddCoffeeShopViewController: UITableViewController, UIImagePickerControlle
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        title = "New Place" // Заголовок экрана
+        title = coffeeShopToEdit == nil ? "New Place" : "Edit Place"
         
-        if #available(iOS 15.0, *) {               // между секциями
+        if #available(iOS 15.0, *) {
             tableView.sectionHeaderTopPadding = 0
         }
         
@@ -75,45 +75,27 @@ class AddCoffeeShopViewController: UITableViewController, UIImagePickerControlle
         tableView.estimatedRowHeight = 100
         
         if coffeeShopToEdit != nil {
-            // Режим редактирования - показываем стрелку назд
             navigationItem.leftBarButtonItem = nil
         } else {
             navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(cancelTapped))
         }
         
-        
-        
-        
-        
-        // Добавляем кнопки Cancel и Save в навигационную панель
-        
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .save, target: self, action: #selector(saveTapped))
         
-        title = coffeeShopToEdit == nil ? "New Place" : "Edit Place"
+        tableView.keyboardDismissMode = .onDrag
         
-        // для дополнительной секции с характеристиками
-        //        navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Характеристики", style: .plain, target: self, action: #selector(toggleCharacteristicsSection))
-        
-        
-        
-        
-        tableView.keyboardDismissMode = .onDrag // Скрывать клавиатуру при прокрутке
-        
-        
-        // Регистрируем кастомные ячейки для фото и текстовых полей
+        // Регистрируем кастомные ячейки
         tableView.register(PhotoTableViewCell.self, forCellReuseIdentifier: "PhotoCell")
         tableView.register(TextFieldTableViewCell.self, forCellReuseIdentifier: "TextFieldCell")
         tableView.register(LocationTableViewCell.self, forCellReuseIdentifier: "LocationCell")
-        
         tableView.register(IntensityTableViewCell.self, forCellReuseIdentifier: "IntensityCell")
         tableView.register(AcidityTableViewCell.self, forCellReuseIdentifier: "AcidityCell")
         
-        // настраиваем UIPickerView
-        
+        // Настраиваем UIPickerView
         typePicker.dataSource = self
         typePicker.delegate = self
         
-        
+        // Загрузка данных из coffeeShopToEdit
         if let coffeeShop = coffeeShopToEdit {
             name = coffeeShop.name
             location = coffeeShop.address
@@ -122,34 +104,20 @@ class AddCoffeeShopViewController: UITableViewController, UIImagePickerControlle
                 selectedImage = UIImage( data: data)
             }
             
-            title = "Edit Place"
-        }
-        
-        if let coffeeShop = coffeeShopToEdit {
-            // Загрузка ранее сохранённого значения интенсивности
             intensityValue = coffeeShop.intensityLevel
-        }
-        
-        
-        
-        // установка текущего рейтинга
-        if let coffeeShop = coffeeShopToEdit {
             currentRating = Int(coffeeShop.rating)
             starRatingView.rating = currentRating
-        }
-        
-        // делегат для обновления рейтинга
-        starRatingView.delegate = self
-        if let coffeeShop = coffeeShopToEdit {
             selectedRoastingIndex = Int(coffeeShop.roastingLevel)
-        }
-        
-        if let coffeeShop = coffeeShopToEdit {
             selectedAcidityLevel = Int(coffeeShop.acidityLevel)
         }
         
+        // Устанавливаем делегат для starRatingView
+        starRatingView.delegate = self
         
+        // Обновляем UI таблицы с загруженными данными
+        tableView.reloadData()
     }
+
     
     // метод делегата для starRatingView
     
@@ -614,8 +582,6 @@ class AddCoffeeShopViewController: UITableViewController, UIImagePickerControlle
     
     
     @objc func saveTapped() {
-        
-        // Проверяем, что все поля заполнены
         guard let name = name, !name.isEmpty,
               let location = location, !location.isEmpty,
               let type = type, !type.isEmpty else {
@@ -624,9 +590,6 @@ class AddCoffeeShopViewController: UITableViewController, UIImagePickerControlle
         }
         
         let context = PersistenceManager.shared.context
-        
-        // если редактируем - обновляемб иначе создаем новый объект
-        
         let coffeeShop = coffeeShopToEdit ?? CoffeeShop(context: context)
         
         coffeeShop.name = name
@@ -635,20 +598,22 @@ class AddCoffeeShopViewController: UITableViewController, UIImagePickerControlle
         coffeeShop.dateAdded = coffeeShop.dateAdded ?? Date()
         coffeeShop.rating = Int16(currentRating)
         
-        
-        // Сохраняем фото, если выбрано
         if let image = selectedImage {
             coffeeShop.photoData = image.jpegData(compressionQuality: 0.8)
         }
         
+        // ВАЖНО: Присваиваем значения второй секции до сохранения
+        coffeeShop.roastingLevel = Int16(selectedRoastingIndex)
+        coffeeShop.intensityLevel = intensityValue
+        coffeeShop.acidityLevel = Int16(selectedAcidityLevel)
+        
         do {
-            try context.save() // Сохраняем в Core Data
+            try context.save()
+            
             // Закрываем экран после успешного сохранения
             if navigationController?.viewControllers.first == self {
-                // Если это корневой контроллер в навигации — dismiss
                 dismiss(animated: true)
             } else {
-                // иначе pop назад
                 navigationController?.popViewController(animated: true)
             }
             
@@ -656,10 +621,9 @@ class AddCoffeeShopViewController: UITableViewController, UIImagePickerControlle
             showAlert(message: "Ошибка сохранения: \(error.localizedDescription)")
         }
         
-        coffeeShop.roastingLevel = Int16(selectedRoastingIndex)
-        coffeeShop.intensityLevel = intensityValue
-        coffeeShop.acidityLevel = Int16(selectedAcidityLevel)
+        
     }
+
     
     
     func showAlert(message: String) {
