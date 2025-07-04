@@ -13,7 +13,7 @@ class AddCoffeeShopViewController: UITableViewController, UIImagePickerControlle
     
     // список типов кофе
     
-    let coffeeTypes = ["Эспрессо", "Американо", "Капучино", "Латте", "Мокко", "Флэт Уайт"]
+    let coffeeTypes = ["Espresso", "Americano", "Cappuccino", "Latte", "Mocha", "Flat White", "Macchiato", "Cold Brew", "Iced Coffee", "Tea" ]
     // свойства для UIPickerView и UITextField
     
     var typePicker = UIPickerView()// UIPickerView для выбора типа кофе
@@ -35,8 +35,19 @@ class AddCoffeeShopViewController: UITableViewController, UIImagePickerControlle
     lazy var pickerToolbar: UIToolbar = {
         let toolbar = UIToolbar()
         toolbar.sizeToFit()
+        
+        // Кнопка Cancel слева
+        let cancelButton = UIBarButtonItem(title: "Cancel", style: .plain, target: self, action: #selector(cancelPicker))
+        cancelButton.tintColor = UIColor.brown
+        
+        // Гибкое пространство между кнопками
+        let flexibleSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
+        
+        
         let doneButton = UIBarButtonItem(title: "Done", style: .done, target: self, action: #selector(typePickerDonePressed))
-        toolbar.setItems([doneButton], animated: false)
+        doneButton.tintColor = UIColor.brown
+        
+        toolbar.setItems([doneButton, flexibleSpace, cancelButton], animated: false)
         return toolbar
     }()
     
@@ -64,6 +75,8 @@ class AddCoffeeShopViewController: UITableViewController, UIImagePickerControlle
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        navigationController?.navigationBar.tintColor = UIColor.brown
         
         title = coffeeShopToEdit == nil ? "New Place" : "Edit Place"
         
@@ -177,12 +190,19 @@ class AddCoffeeShopViewController: UITableViewController, UIImagePickerControlle
             switch cellType {
             case .photo:
                 let cell = tableView.dequeueReusableCell(withIdentifier: "PhotoCell", for: indexPath) as! PhotoTableViewCell
-                cell.photoImageView.image = selectedImage ?? UIImage(systemName: "photo")
+                if let image = selectedImage {
+                    cell.photoImageView.image = image
+                    cell.photoImageView.tintColor = nil // реал фото без измененния цвета
+                } else {
+                    let placeholder = UIImage(systemName: "photo")?.withRenderingMode(.alwaysTemplate)
+                    cell.photoImageView.image = placeholder
+                    cell.photoImageView.tintColor = UIColor.brown
+                }
                 return cell
                 
             case .name:
                 let cell = tableView.dequeueReusableCell(withIdentifier: "TextFieldCell", for: indexPath) as! TextFieldTableViewCell
-                cell.textField.placeholder = "Название заведения"
+                cell.textField.placeholder = "Place name"
                 cell.textField.text = name
                 cell.textField.isUserInteractionEnabled = true
                 cell.showPickerButton(false) // Скрываем кнопку для названия
@@ -211,7 +231,7 @@ class AddCoffeeShopViewController: UITableViewController, UIImagePickerControlle
                 
             case .type:
                 let cell = tableView.dequeueReusableCell(withIdentifier: "TextFieldCell", for: indexPath) as! TextFieldTableViewCell
-                cell.textField.placeholder = "Тип напитка"
+                cell.textField.placeholder = "Drink type"
                 cell.textField.text = type
                 cell.textField.isUserInteractionEnabled = true // разрешение на ручной вввод
                 cell.showPickerButton(true) // Показываем кнопку для типа
@@ -262,12 +282,12 @@ class AddCoffeeShopViewController: UITableViewController, UIImagePickerControlle
                 let cell = UITableViewCell(style: .default, reuseIdentifier: "ExpandCell")
                 cell.textLabel?.text = isCharacteristicsExpanded ? "Fade characteristics" : "Add characteristics"
                 cell.textLabel?.textAlignment = .center
-                cell.textLabel?.textColor = view.tintColor
+                cell.textLabel?.textColor = UIColor.brown
                 
                 let imageName = isCharacteristicsExpanded ? "chevron.up" : "chevron.down"
                 let arrowImage = UIImage(systemName: imageName)
                 let arrowImageView = UIImageView(image: arrowImage)
-                arrowImageView.tintColor = view.tintColor
+                arrowImageView.tintColor = UIColor.brown
                 cell.accessoryView = arrowImageView
                 return cell
             }
@@ -275,7 +295,7 @@ class AddCoffeeShopViewController: UITableViewController, UIImagePickerControlle
         else if indexPath.section == 1 {
             if indexPath.row == 0 {
                 let cell = UITableViewCell(style: .default, reuseIdentifier: "RostingCell")
-                cell.textLabel?.text = "Cтепень обжарки"
+                cell.textLabel?.text = "Roasting"
                 // Создаём Segmented Control
                 let roastingControl = UISegmentedControl(items: ["Light", "Medium", "Dark"])
                 
@@ -624,7 +644,7 @@ class AddCoffeeShopViewController: UITableViewController, UIImagePickerControlle
         
     }
 
-    
+   
     
     func showAlert(message: String) {
         let alert = UIAlertController(title: "Ошибка", message: message, preferredStyle: .alert)
@@ -649,6 +669,12 @@ class AddCoffeeShopViewController: UITableViewController, UIImagePickerControlle
 
         }
     }
+    
+    
+    @objc func cancelPicker() {
+        activeTextField?.resignFirstResponder()
+    }
+    
     
     
 }

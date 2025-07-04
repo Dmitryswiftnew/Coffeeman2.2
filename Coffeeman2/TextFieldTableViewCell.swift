@@ -15,8 +15,8 @@ class TextFieldTableViewCell: UITableViewCell, UITextFieldDelegate {
     let pickerButton: UIButton = {
         let button = UIButton(type: .system)
         button.setImage(UIImage(systemName: "chevron.down"), for: .normal)
-        button.tintColor = .gray
-        button.frame = CGRect(x: 0, y: 0, width: 32, height: 32)
+        button.tintColor = .brown
+        button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
     
@@ -32,6 +32,13 @@ class TextFieldTableViewCell: UITableViewCell, UITextFieldDelegate {
             textField.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
             textField.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16)
         ])
+        
+        
+        NSLayoutConstraint.activate([
+            pickerButton.widthAnchor.constraint(equalToConstant: 18),
+            pickerButton.heightAnchor.constraint(equalToConstant: 18)
+        ])
+        
         
         textField.delegate = self
         textField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)

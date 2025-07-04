@@ -40,6 +40,7 @@ class CoffeeShopsViewController: UITableViewController {
         
         title = "Coffeman"
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "Cell")
+        navigationController?.navigationBar.tintColor = UIColor.brown
         
         // Инициализируем fetchedResultsController
         initializeFetchedResultsController()
@@ -51,6 +52,7 @@ class CoffeeShopsViewController: UITableViewController {
         
         // Кнопка "+" для добавления новой кофейни
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addCoffeeShop))
+        navigationItem.rightBarButtonItem?.tintColor = UIColor.brown
         
         tableView.register(CoffeeShopTableViewCell.self, forCellReuseIdentifier: "CoffeeShopCell")
         tableView.rowHeight = 75
@@ -127,12 +129,15 @@ class CoffeeShopsViewController: UITableViewController {
         
         if let image = UIImage(systemName: symbolName) {
             let sortButton = UIBarButtonItem(image: image, style: .plain, target: self, action: #selector(toggleRatingSort))
+            sortButton.tintColor = UIColor.brown
             navigationItem.leftBarButtonItem = sortButton
         } else {
             // На случай, если изображение не загрузилось, показываем текст
             let title = isRatingAscending ? "▲" : "▼"
             let sortButton = UIBarButtonItem(title: title, style: .plain, target: self, action: #selector(toggleRatingSort))
+            sortButton.tintColor = UIColor.brown
             navigationItem.leftBarButtonItem = sortButton
+            
         }
   
     }

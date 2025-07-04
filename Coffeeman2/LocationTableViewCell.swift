@@ -22,7 +22,7 @@ class LocationTableViewCell: UITableViewCell {
         mapButton.tintColor = .brown
         mapButton.frame = CGRect(x: 0, y: 0, width: 32, height: 32)
         
-        textField.placeholder = "Адрес"
+        textField.placeholder = "Address"
         textField.borderStyle = .roundedRect
         textField.translatesAutoresizingMaskIntoConstraints = false
         textField.rightView = mapButton

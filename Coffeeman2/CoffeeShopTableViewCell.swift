@@ -74,7 +74,7 @@ class CoffeeShopTableViewCell: UITableViewCell {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = "\u{24D8}" // Unicode для ⓘ
         label.font = UIFont.systemFont(ofSize: 20, weight: .bold)
-        label.textColor = UIColor.systemBlue
+        label.textColor = UIColor.brown
         label.textAlignment = .center
         return label
     }()
@@ -157,7 +157,10 @@ class CoffeeShopTableViewCell: UITableViewCell {
         if let data = coffeeShop.photoData, let image = UIImage(data: data) {
             photoImageView.image = image
         } else {
-            photoImageView.image = UIImage(systemName: "photo")
+            let placeholder = UIImage(systemName: "photo")?.withRenderingMode(.alwaysTemplate)
+            photoImageView.image = placeholder
+            photoImageView.tintColor = UIColor.brown
+            
         }
         
         nameLabel.text = coffeeShop.name ?? "Без названия"
