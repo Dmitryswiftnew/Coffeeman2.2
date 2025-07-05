@@ -56,9 +56,6 @@ class MapSelectionViewController: UIViewController, CLLocationManagerDelegate, M
         mapView.userTrackingMode = .follow // следит за пользователем
         
         
-        mapView.layer.borderColor = UIColor.red.cgColor  // Красная граница
-        mapView.layer.borderWidth = 3                    // Толщина границы 3 пункта
-        
         // настройка жеста для добавления маркера
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleMapTap(_:)))
         mapView.addGestureRecognizer(tapGesture)
@@ -140,13 +137,12 @@ class MapSelectionViewController: UIViewController, CLLocationManagerDelegate, M
         }
         
         let identifier = "Pin"
-        var annotationView = mapView.dequeueReusableAnnotationView(withIdentifier: identifier) as? MKPinAnnotationView
+        var annotationView = mapView.dequeueReusableAnnotationView(withIdentifier: identifier) as? MKMarkerAnnotationView
         
         if annotationView == nil {
-            annotationView = MKPinAnnotationView(annotation: annotation, reuseIdentifier: identifier)
+            annotationView = MKMarkerAnnotationView(annotation: annotation, reuseIdentifier: identifier)
             annotationView?.canShowCallout = true  // включаем отображение callout
-            annotationView?.animatesDrop = true    // анимация падения пина
-            annotationView?.pinTintColor = .red
+            annotationView?.markerTintColor = .red
         } else {
             annotationView?.annotation = annotation
         }

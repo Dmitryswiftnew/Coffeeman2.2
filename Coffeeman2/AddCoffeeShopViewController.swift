@@ -177,7 +177,6 @@ class AddCoffeeShopViewController: UITableViewController, UIImagePickerControlle
     
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let baseSectionsCount = 1 // количество базовых секций
         
         if indexPath.section == 0 {
             
@@ -654,9 +653,10 @@ class AddCoffeeShopViewController: UITableViewController, UIImagePickerControlle
     
     
     @objc func typePickerDonePressed() {
-        guard let selectedIndex = selectedTypeIndex else { return }
+      let selectedRow = selectedTypeIndex ?? typePicker.selectedRow(inComponent: 0)
+        selectedTypeIndex = selectedRow
         
-        type = coffeeTypes[selectedIndex]
+        type = coffeeTypes[selectedRow]
         
         // Обновляем текстовое поле с типом напитка
         let indexPath = IndexPath(row: AddPlaceCell.type.rawValue, section: 0)

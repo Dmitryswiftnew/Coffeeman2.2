@@ -1,10 +1,4 @@
-//
-//  CoffeeShop+CoreDataProperties.swift
-//  Coffeeman2
-//
-//  Created by Dmitry on 17.06.25.
-//
-//
+
 
 import Foundation
 import CoreData

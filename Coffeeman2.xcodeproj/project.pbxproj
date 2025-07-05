@@ -11,7 +11,6 @@
 		0A34C3AD2DFFFC8400014386 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A34C3AC2DFFFC8400014386 /* SceneDelegate.swift */; };
 		0A34C3B52DFFFC8400014386 /* Coffeeman2.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 0A34C3B32DFFFC8400014386 /* Coffeeman2.xcdatamodeld */; };
 		0A34C3B72DFFFC8500014386 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0A34C3B62DFFFC8500014386 /* Assets.xcassets */; };
-		0A34C3C22E00014100014386 /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A34C3C12E00014100014386 /* MainViewController.swift */; };
 		0A34C3C42E00033400014386 /* PersistenceManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A34C3C32E00033400014386 /* PersistenceManager.swift */; };
 		0A34C3C92E0017B200014386 /* CoffeeShop+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A34C3C52E0017B200014386 /* CoffeeShop+CoreDataClass.swift */; };
 		0A34C3CA2E0017B200014386 /* CoffeeShop+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A34C3C62E0017B200014386 /* CoffeeShop+CoreDataProperties.swift */; };
@@ -27,7 +26,6 @@
 		0A6A664C2E05407500B267B8 /* CoffeeShopTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A6A664B2E05407500B267B8 /* CoffeeShopTableViewCell.swift */; };
 		0A6A664E2E06DE9300B267B8 /* StarRatingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A6A664D2E06DE9300B267B8 /* StarRatingView.swift */; };
 		0A6A66512E096D5B00B267B8 /* MapSelectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A6A66502E096D5B00B267B8 /* MapSelectionViewController.swift */; };
-		0A6A66532E096D8D00B267B8 /* MapRouteViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A6A66522E096D8D00B267B8 /* MapRouteViewController.swift */; };
 		0AF2B0BA2E0BD9820038714F /* LocationTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AF2B0B92E0BD9820038714F /* LocationTableViewCell.swift */; };
 /* End PBXBuildFile section */
 
@@ -38,7 +36,6 @@
 		0A34C3B42DFFFC8400014386 /* Coffeeman2.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Coffeeman2.xcdatamodel; sourceTree = "<group>"; };
 		0A34C3B62DFFFC8500014386 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		0A34C3BB2DFFFC8500014386 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		0A34C3C12E00014100014386 /* MainViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewController.swift; sourceTree = "<group>"; };
 		0A34C3C32E00033400014386 /* PersistenceManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistenceManager.swift; sourceTree = "<group>"; };
 		0A34C3C52E0017B200014386 /* CoffeeShop+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CoffeeShop+CoreDataClass.swift"; sourceTree = "<group>"; };
 		0A34C3C62E0017B200014386 /* CoffeeShop+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CoffeeShop+CoreDataProperties.swift"; sourceTree = "<group>"; };
@@ -54,7 +51,6 @@
 		0A6A664B2E05407500B267B8 /* CoffeeShopTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoffeeShopTableViewCell.swift; sourceTree = "<group>"; };
 		0A6A664D2E06DE9300B267B8 /* StarRatingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StarRatingView.swift; sourceTree = "<group>"; };
 		0A6A66502E096D5B00B267B8 /* MapSelectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapSelectionViewController.swift; sourceTree = "<group>"; };
-		0A6A66522E096D8D00B267B8 /* MapRouteViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapRouteViewController.swift; sourceTree = "<group>"; };
 		0AF2B0B92E0BD9820038714F /* LocationTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationTableViewCell.swift; sourceTree = "<group>"; };
 		4A7A0055482E8B162A16E1C8 /* Pods-Coffeeman2.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Coffeeman2.debug.xcconfig"; path = "Target Support Files/Pods-Coffeeman2/Pods-Coffeeman2.debug.xcconfig"; sourceTree = "<group>"; };
 		6D43A4E4853CB224292DB547 /* Pods_Coffeeman2.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Coffeeman2.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -77,7 +73,6 @@
 			children = (
 				0A34C3C52E0017B200014386 /* CoffeeShop+CoreDataClass.swift */,
 				0A34C3C62E0017B200014386 /* CoffeeShop+CoreDataProperties.swift */,
-				0A6A664D2E06DE9300B267B8 /* StarRatingView.swift */,
 				0A34C3C72E0017B200014386 /* Drink+CoreDataClass.swift */,
 				0A34C3C82E0017B200014386 /* Drink+CoreDataProperties.swift */,
 				0A6A664F2E096D2C00B267B8 /* Apple Maps */,
@@ -105,10 +100,10 @@
 				0A34C3AC2DFFFC8400014386 /* SceneDelegate.swift */,
 				0A6A66452E01597A00B267B8 /* AddCoffeeShopViewController.swift */,
 				0A6A664B2E05407500B267B8 /* CoffeeShopTableViewCell.swift */,
+				0A6A664D2E06DE9300B267B8 /* StarRatingView.swift */,
 				0A6A66472E01643200B267B8 /* TextFieldTableViewCell.swift */,
 				0A6A66492E0167D700B267B8 /* PhotoTableViewCell.swift */,
 				0AF2B0B92E0BD9820038714F /* LocationTableViewCell.swift */,
-				0A34C3C12E00014100014386 /* MainViewController.swift */,
 				0A45A12B2E15797D009CBAFE /* IntensityTableViewCell.swift */,
 				0A45A12D2E168188009CBAFE /* AcidicityTableViewCell.swift */,
 				0A34C3B62DFFFC8500014386 /* Assets.xcassets */,
@@ -123,7 +118,6 @@
 			isa = PBXGroup;
 			children = (
 				0A6A66502E096D5B00B267B8 /* MapSelectionViewController.swift */,
-				0A6A66522E096D8D00B267B8 /* MapRouteViewController.swift */,
 			);
 			path = "Apple Maps";
 			sourceTree = "<group>";
@@ -174,7 +168,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1420;
-				LastUpgradeCheck = 1420;
+				LastUpgradeCheck = 1520;
 				TargetAttributes = {
 					0A34C3A62DFFFC8400014386 = {
 						CreatedOnToolsVersion = 14.2;
@@ -246,7 +240,6 @@
 				0A34C3B52DFFFC8400014386 /* Coffeeman2.xcdatamodeld in Sources */,
 				0A34C3CE2E00238C00014386 /* CoffeeShopsViewController.swift in Sources */,
 				0A6A66482E01643200B267B8 /* TextFieldTableViewCell.swift in Sources */,
-				0A6A66532E096D8D00B267B8 /* MapRouteViewController.swift in Sources */,
 				0A45A12E2E168188009CBAFE /* AcidicityTableViewCell.swift in Sources */,
 				0A34C3C42E00033400014386 /* PersistenceManager.swift in Sources */,
 				0A34C3AB2DFFFC8400014386 /* AppDelegate.swift in Sources */,
@@ -259,7 +252,6 @@
 				0A34C3CC2E0017B200014386 /* Drink+CoreDataProperties.swift in Sources */,
 				0A6A66512E096D5B00B267B8 /* MapSelectionViewController.swift in Sources */,
 				0A6A664A2E0167D700B267B8 /* PhotoTableViewCell.swift in Sources */,
-				0A34C3C22E00014100014386 /* MainViewController.swift in Sources */,
 				0A45A12C2E15797D009CBAFE /* IntensityTableViewCell.swift in Sources */,
 				0A34C3CA2E0017B200014386 /* CoffeeShop+CoreDataProperties.swift in Sources */,
 			);
@@ -304,6 +296,7 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -318,7 +311,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -364,6 +357,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -372,7 +366,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;

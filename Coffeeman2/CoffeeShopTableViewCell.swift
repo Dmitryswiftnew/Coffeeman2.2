@@ -1,9 +1,3 @@
-//
-//  CoffeeShopTableViewCell.swift
-//  Coffeeman2
-//
-//  Created by Dmitry on 20.06.25.
-//
 
 import Foundation
 import UIKit
