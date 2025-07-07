@@ -14,12 +14,13 @@
 		0A34C3C42E00033400014386 /* PersistenceManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A34C3C32E00033400014386 /* PersistenceManager.swift */; };
 		0A34C3C92E0017B200014386 /* CoffeeShop+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A34C3C52E0017B200014386 /* CoffeeShop+CoreDataClass.swift */; };
 		0A34C3CA2E0017B200014386 /* CoffeeShop+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A34C3C62E0017B200014386 /* CoffeeShop+CoreDataProperties.swift */; };
-		0A34C3CB2E0017B200014386 /* Drink+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A34C3C72E0017B200014386 /* Drink+CoreDataClass.swift */; };
-		0A34C3CC2E0017B200014386 /* Drink+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A34C3C82E0017B200014386 /* Drink+CoreDataProperties.swift */; };
 		0A34C3CE2E00238C00014386 /* CoffeeShopsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A34C3CD2E00238C00014386 /* CoffeeShopsViewController.swift */; };
 		0A45A12C2E15797D009CBAFE /* IntensityTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A45A12B2E15797D009CBAFE /* IntensityTableViewCell.swift */; };
 		0A45A12E2E168188009CBAFE /* AcidicityTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A45A12D2E168188009CBAFE /* AcidicityTableViewCell.swift */; };
 		0A45A1322E17ED67009CBAFE /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0A45A1312E17ED67009CBAFE /* LaunchScreen.storyboard */; };
+		0A45A1342E194671009CBAFE /* Drink+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A45A1332E194671009CBAFE /* Drink+CoreDataClass.swift */; };
+		0A45A1362E194683009CBAFE /* Drink+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A45A1352E194683009CBAFE /* Drink+CoreDataProperties.swift */; };
+		0A45A1392E195ED5009CBAFE /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 0A45A13B2E195ED5009CBAFE /* Localizable.strings */; };
 		0A6A66462E01597A00B267B8 /* AddCoffeeShopViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A6A66452E01597A00B267B8 /* AddCoffeeShopViewController.swift */; };
 		0A6A66482E01643200B267B8 /* TextFieldTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A6A66472E01643200B267B8 /* TextFieldTableViewCell.swift */; };
 		0A6A664A2E0167D700B267B8 /* PhotoTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A6A66492E0167D700B267B8 /* PhotoTableViewCell.swift */; };
@@ -39,12 +40,14 @@
 		0A34C3C32E00033400014386 /* PersistenceManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistenceManager.swift; sourceTree = "<group>"; };
 		0A34C3C52E0017B200014386 /* CoffeeShop+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CoffeeShop+CoreDataClass.swift"; sourceTree = "<group>"; };
 		0A34C3C62E0017B200014386 /* CoffeeShop+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CoffeeShop+CoreDataProperties.swift"; sourceTree = "<group>"; };
-		0A34C3C72E0017B200014386 /* Drink+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Drink+CoreDataClass.swift"; sourceTree = "<group>"; };
-		0A34C3C82E0017B200014386 /* Drink+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Drink+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		0A34C3CD2E00238C00014386 /* CoffeeShopsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoffeeShopsViewController.swift; sourceTree = "<group>"; };
 		0A45A12B2E15797D009CBAFE /* IntensityTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntensityTableViewCell.swift; sourceTree = "<group>"; };
 		0A45A12D2E168188009CBAFE /* AcidicityTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AcidicityTableViewCell.swift; sourceTree = "<group>"; };
 		0A45A1312E17ED67009CBAFE /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
+		0A45A1332E194671009CBAFE /* Drink+CoreDataClass.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Drink+CoreDataClass.swift"; sourceTree = "<group>"; };
+		0A45A1352E194683009CBAFE /* Drink+CoreDataProperties.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Drink+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		0A45A13A2E195ED5009CBAFE /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
+		0A45A13C2E195EDF009CBAFE /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/Localizable.strings; sourceTree = "<group>"; };
 		0A6A66452E01597A00B267B8 /* AddCoffeeShopViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCoffeeShopViewController.swift; sourceTree = "<group>"; };
 		0A6A66472E01643200B267B8 /* TextFieldTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextFieldTableViewCell.swift; sourceTree = "<group>"; };
 		0A6A66492E0167D700B267B8 /* PhotoTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoTableViewCell.swift; sourceTree = "<group>"; };
@@ -71,10 +74,11 @@
 		0A34C39E2DFFFC8400014386 = {
 			isa = PBXGroup;
 			children = (
+				0A45A13B2E195ED5009CBAFE /* Localizable.strings */,
+				0A45A1352E194683009CBAFE /* Drink+CoreDataProperties.swift */,
+				0A45A1332E194671009CBAFE /* Drink+CoreDataClass.swift */,
 				0A34C3C52E0017B200014386 /* CoffeeShop+CoreDataClass.swift */,
 				0A34C3C62E0017B200014386 /* CoffeeShop+CoreDataProperties.swift */,
-				0A34C3C72E0017B200014386 /* Drink+CoreDataClass.swift */,
-				0A34C3C82E0017B200014386 /* Drink+CoreDataProperties.swift */,
 				0A6A664F2E096D2C00B267B8 /* Apple Maps */,
 				0A34C3A92DFFFC8400014386 /* Coffeeman2 */,
 				0A34C3A82DFFFC8400014386 /* Products */,
@@ -182,6 +186,7 @@
 			knownRegions = (
 				en,
 				Base,
+				ru,
 			);
 			mainGroup = 0A34C39E2DFFFC8400014386;
 			productRefGroup = 0A34C3A82DFFFC8400014386 /* Products */;
@@ -199,6 +204,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				0A34C3B72DFFFC8500014386 /* Assets.xcassets in Resources */,
+				0A45A1392E195ED5009CBAFE /* Localizable.strings in Resources */,
 				0A45A1322E17ED67009CBAFE /* LaunchScreen.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -236,12 +242,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0A34C3CB2E0017B200014386 /* Drink+CoreDataClass.swift in Sources */,
 				0A34C3B52DFFFC8400014386 /* Coffeeman2.xcdatamodeld in Sources */,
 				0A34C3CE2E00238C00014386 /* CoffeeShopsViewController.swift in Sources */,
+				0A45A1342E194671009CBAFE /* Drink+CoreDataClass.swift in Sources */,
 				0A6A66482E01643200B267B8 /* TextFieldTableViewCell.swift in Sources */,
 				0A45A12E2E168188009CBAFE /* AcidicityTableViewCell.swift in Sources */,
 				0A34C3C42E00033400014386 /* PersistenceManager.swift in Sources */,
+				0A45A1362E194683009CBAFE /* Drink+CoreDataProperties.swift in Sources */,
 				0A34C3AB2DFFFC8400014386 /* AppDelegate.swift in Sources */,
 				0A6A66462E01597A00B267B8 /* AddCoffeeShopViewController.swift in Sources */,
 				0A34C3C92E0017B200014386 /* CoffeeShop+CoreDataClass.swift in Sources */,
@@ -249,7 +256,6 @@
 				0A34C3AD2DFFFC8400014386 /* SceneDelegate.swift in Sources */,
 				0A6A664C2E05407500B267B8 /* CoffeeShopTableViewCell.swift in Sources */,
 				0AF2B0BA2E0BD9820038714F /* LocationTableViewCell.swift in Sources */,
-				0A34C3CC2E0017B200014386 /* Drink+CoreDataProperties.swift in Sources */,
 				0A6A66512E096D5B00B267B8 /* MapSelectionViewController.swift in Sources */,
 				0A6A664A2E0167D700B267B8 /* PhotoTableViewCell.swift in Sources */,
 				0A45A12C2E15797D009CBAFE /* IntensityTableViewCell.swift in Sources */,
@@ -258,6 +264,18 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		0A45A13B2E195ED5009CBAFE /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				0A45A13A2E195ED5009CBAFE /* en */,
+				0A45A13C2E195EDF009CBAFE /* ru */,
+			);
+			name = Localizable.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
 		0A34C3BC2DFFFC8500014386 /* Debug */ = {
@@ -400,6 +418,10 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.RSSchool1.Coffeeman2;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -430,6 +452,10 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.RSSchool1.Coffeeman2;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";

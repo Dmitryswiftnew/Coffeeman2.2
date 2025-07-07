@@ -538,29 +538,31 @@ class AddCoffeeShopViewController: UITableViewController, UIImagePickerControlle
     // Show Photo
     
     func showPhotoSourceSelection() {
-        let alert = UIAlertController(title: "Выберите источник фото", message: nil, preferredStyle: .actionSheet)
-        
-        // проверяем доступность камеры
+        let alert = UIAlertController(
+            title: NSLocalizedString("photo_selection_title", comment: "Заголовок выбора источника фото"),
+            message: nil,
+            preferredStyle: .actionSheet
+        )
         
         if UIImagePickerController.isSourceTypeAvailable(.camera) {
-            alert.addAction(UIAlertAction(title: "Сделать фото", style: .default) { [weak self] _ in
-                self?.presentImagePicker(sourceType: .camera)
-            })
+            alert.addAction(UIAlertAction(
+                title: NSLocalizedString("take_photo", comment: "Кнопка Сделать фото"),
+                style: .default) { [weak self] _ in
+                    self?.presentImagePicker(sourceType: .camera)
+                })
         }
         
-        // фото из голереи
+        alert.addAction(UIAlertAction(
+            title: NSLocalizedString("choose_from_gallery", comment: "Кнопка Выбрать из Галереи"),
+            style: .default) { [weak self] _ in
+                self?.presentImagePicker(sourceType: .photoLibrary)
+            })
         
-        alert.addAction(UIAlertAction(title: "Выбрать из галереи", style: .default)
-                        { [weak self] _ in
-            self?.presentImagePicker(sourceType: .photoLibrary)
-        })
-        
-        // отмена
-        
-        alert.addAction(UIAlertAction(title: "Отмена", style: .cancel))
+        alert.addAction(UIAlertAction(
+            title: NSLocalizedString("cancel_button_title", comment: "Кнопка Отмена"),
+            style: .cancel))
         
         present(alert, animated: true)
-        
     }
     
     func presentImagePicker(sourceType: UIImagePickerController.SourceType) {
@@ -646,9 +648,13 @@ class AddCoffeeShopViewController: UITableViewController, UIImagePickerControlle
    
     
     func showAlert(message: String) {
-        let alert = UIAlertController(title: "Ошибка", message: message, preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "OK", style: .default))
-        present(alert,animated: true)
+        let alert = UIAlertController(
+            title: NSLocalizedString("error_title", comment: "Заголовок алерта ошибки"),
+            message: NSLocalizedString("fill_all_fields_message", comment: "Сообщение о необходимости заполнить все поля"),
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: NSLocalizedString("ok_button_title", comment: "Кнопка OK"), style: .default))
+        present(alert, animated: true)
     }
     
     

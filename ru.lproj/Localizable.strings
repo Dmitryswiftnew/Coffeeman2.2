@@ -1,0 +1,16 @@
+/* 
+  Localizable.strings
+  Coffeeman2
+
+  Created by Dmitry on 5.07.25.
+  
+*/
+
+/* Russian */
+"error_title" = "Ошибка";
+"fill_all_fields_message" = "Пожалуйста, заполните все поля";
+"ok_button_title" = "ОК";
+"photo_selection_title" = "Выберите источник фото";
+"take_photo" = "Сделать фото";
+"choose_from_gallery" = "Выбрать из Галереи";
+"cancel_button_title" = "Отмена";

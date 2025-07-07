@@ -1,0 +1,16 @@
+/* 
+  Localizable.strings
+  Coffeeman2
+
+  Created by Dmitry on 5.07.25.
+  
+*/
+
+/* English */
+"error_title" = "Error";
+"fill_all_fields_message" = "Please fill in all fields";
+"ok_button_title" = "OK";
+"photo_selection_title" = "Select Photo";
+"take_photo" = "Take Photo";
+"choose_from_gallery" = "Choose from Gallery";
+"cancel_button_title" = "Cancel";

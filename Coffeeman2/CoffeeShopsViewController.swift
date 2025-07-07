@@ -117,7 +117,7 @@ class CoffeeShopsViewController: UITableViewController {
             do {
                 try fetchedResultsController.performFetch()
             } catch {
-                printContent("Ошибка сортировки: \(error.localizedDescription)")
+                print("Ошибка сортировки: \(error.localizedDescription)")
             }
             tableView.reloadData()
         }
