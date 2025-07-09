@@ -38,7 +38,7 @@ class CoffeeShopsViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        title = "Coffeman"
+        title = "Coffeeman"
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "Cell")
         navigationController?.navigationBar.tintColor = UIColor.brown
         
