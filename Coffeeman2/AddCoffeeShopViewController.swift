@@ -37,17 +37,17 @@ class AddCoffeeShopViewController: UITableViewController, UIImagePickerControlle
         toolbar.sizeToFit()
         
         // Кнопка Cancel слева
-        let cancelButton = UIBarButtonItem(title: "Cancel", style: .plain, target: self, action: #selector(cancelPicker))
+        let cancelButton = UIBarButtonItem(title: NSLocalizedString("cancel_button_title", comment: "Кнопка Отмена"), style: .plain, target: self, action: #selector(cancelPicker))
         cancelButton.tintColor = UIColor.brown
         
         // Гибкое пространство между кнопками
         let flexibleSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
         
         
-        let doneButton = UIBarButtonItem(title: "Done", style: .done, target: self, action: #selector(typePickerDonePressed))
+        let doneButton = UIBarButtonItem(title: NSLocalizedString("done_button_title", comment: "Кнопка Готово"), style: .done, target: self, action: #selector(typePickerDonePressed))
         doneButton.tintColor = UIColor.brown
         
-        toolbar.setItems([doneButton, flexibleSpace, cancelButton], animated: false)
+        toolbar.setItems([cancelButton, flexibleSpace, doneButton], animated: false)
         return toolbar
     }()
     
