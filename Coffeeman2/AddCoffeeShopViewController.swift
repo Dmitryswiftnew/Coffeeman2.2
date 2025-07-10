@@ -543,7 +543,7 @@ class AddCoffeeShopViewController: UITableViewController, UIImagePickerControlle
             message: nil,
             preferredStyle: .actionSheet
         )
-        
+
         if UIImagePickerController.isSourceTypeAvailable(.camera) {
             alert.addAction(UIAlertAction(
                 title: NSLocalizedString("take_photo", comment: "Кнопка Сделать фото"),
@@ -551,17 +551,30 @@ class AddCoffeeShopViewController: UITableViewController, UIImagePickerControlle
                     self?.presentImagePicker(sourceType: .camera)
                 })
         }
-        
+
         alert.addAction(UIAlertAction(
             title: NSLocalizedString("choose_from_gallery", comment: "Кнопка Выбрать из Галереи"),
             style: .default) { [weak self] _ in
                 self?.presentImagePicker(sourceType: .photoLibrary)
             })
-        
+
         alert.addAction(UIAlertAction(
             title: NSLocalizedString("cancel_button_title", comment: "Кнопка Отмена"),
             style: .cancel))
-        
+
+        // Настройка popover для iPad
+        if let popoverController = alert.popoverPresentationController {
+            if let photoCell = tableView.cellForRow(at: IndexPath(row: AddPlaceCell.photo.rawValue, section: 0)) as? PhotoTableViewCell {
+                popoverController.sourceView = photoCell.photoImageView
+                popoverController.sourceRect = photoCell.photoImageView.bounds
+            } else {
+                popoverController.sourceView = self.view
+                popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.midY, width: 0, height: 0)
+                popoverController.permittedArrowDirections = []
+            }
+            popoverController.permittedArrowDirections = .any
+        }
+
         present(alert, animated: true)
     }
     
@@ -570,8 +583,20 @@ class AddCoffeeShopViewController: UITableViewController, UIImagePickerControlle
         picker.delegate = self
         picker.sourceType = sourceType
         picker.allowsEditing = true
+
+        // Настройка popover для iPad
+        if let popoverController = picker.popoverPresentationController {
+            if let photoCell = tableView.cellForRow(at: IndexPath(row: AddPlaceCell.photo.rawValue, section: 0)) as? PhotoTableViewCell {
+                popoverController.sourceView = photoCell.photoImageView
+                popoverController.sourceRect = photoCell.photoImageView.bounds
+            } else {
+                popoverController.sourceView = self.view
+                popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.midY, width: 0, height: 0)
+                popoverController.permittedArrowDirections = []
+            }
+        }
+
         present(picker, animated: true)
-        
     }
     
     // MARK: - UIImagePickerControllerDelegate
