@@ -19,5 +19,11 @@
 			</array>
 		</dict>
 	</dict>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>To let you choose photos from your library</string>
+	<key>NSCameraUsageDescription</key>
+	<string>To allow you to take photos of coffee shops and drinks</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Location access is required to use the map features</string>
 </dict>
 </plist>

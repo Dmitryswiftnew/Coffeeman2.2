@@ -164,7 +164,4 @@ class CoffeeShopTableViewCell: UITableViewCell {
         starRatingView.isEditable = false
     }
     
-    
-    
-    
 }

@@ -1,0 +1,11 @@
+/* 
+  InfoPlist.strings
+  Coffeeman2
+
+  Created by Dmitry on 12.07.25.
+  
+*/
+
+NSCameraUsageDescription = "To allow you to take photos of coffee shops and drinks.";
+NSPhotoLibraryUsageDescription = "To let you choose photos from your library.";
+NSLocationWhenInUseUsageDescription = "Location access is required to use the map features.";

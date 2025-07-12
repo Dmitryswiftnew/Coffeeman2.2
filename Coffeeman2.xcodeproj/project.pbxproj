@@ -21,6 +21,7 @@
 		0A45A1342E194671009CBAFE /* Drink+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A45A1332E194671009CBAFE /* Drink+CoreDataClass.swift */; };
 		0A45A1362E194683009CBAFE /* Drink+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A45A1352E194683009CBAFE /* Drink+CoreDataProperties.swift */; };
 		0A45A1392E195ED5009CBAFE /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 0A45A13B2E195ED5009CBAFE /* Localizable.strings */; };
+		0A45A14C2E225733009CBAFE /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 0A45A14E2E225733009CBAFE /* InfoPlist.strings */; };
 		0A6A66462E01597A00B267B8 /* AddCoffeeShopViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A6A66452E01597A00B267B8 /* AddCoffeeShopViewController.swift */; };
 		0A6A66482E01643200B267B8 /* TextFieldTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A6A66472E01643200B267B8 /* TextFieldTableViewCell.swift */; };
 		0A6A664A2E0167D700B267B8 /* PhotoTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A6A66492E0167D700B267B8 /* PhotoTableViewCell.swift */; };
@@ -48,6 +49,8 @@
 		0A45A1352E194683009CBAFE /* Drink+CoreDataProperties.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Drink+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		0A45A13A2E195ED5009CBAFE /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		0A45A13C2E195EDF009CBAFE /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/Localizable.strings; sourceTree = "<group>"; };
+		0A45A14D2E225733009CBAFE /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		0A45A14F2E225741009CBAFE /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		0A6A66452E01597A00B267B8 /* AddCoffeeShopViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCoffeeShopViewController.swift; sourceTree = "<group>"; };
 		0A6A66472E01643200B267B8 /* TextFieldTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextFieldTableViewCell.swift; sourceTree = "<group>"; };
 		0A6A66492E0167D700B267B8 /* PhotoTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoTableViewCell.swift; sourceTree = "<group>"; };
@@ -112,6 +115,7 @@
 				0A45A12D2E168188009CBAFE /* AcidicityTableViewCell.swift */,
 				0A34C3B62DFFFC8500014386 /* Assets.xcassets */,
 				0A34C3BB2DFFFC8500014386 /* Info.plist */,
+				0A45A14E2E225733009CBAFE /* InfoPlist.strings */,
 				0A45A1312E17ED67009CBAFE /* LaunchScreen.storyboard */,
 				0A34C3B32DFFFC8400014386 /* Coffeeman2.xcdatamodeld */,
 			);
@@ -204,6 +208,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				0A34C3B72DFFFC8500014386 /* Assets.xcassets in Resources */,
+				0A45A14C2E225733009CBAFE /* InfoPlist.strings in Resources */,
 				0A45A1392E195ED5009CBAFE /* Localizable.strings in Resources */,
 				0A45A1322E17ED67009CBAFE /* LaunchScreen.storyboard in Resources */,
 			);
@@ -273,6 +278,15 @@
 				0A45A13C2E195EDF009CBAFE /* ru */,
 			);
 			name = Localizable.strings;
+			sourceTree = "<group>";
+		};
+		0A45A14E2E225733009CBAFE /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				0A45A14D2E225733009CBAFE /* en */,
+				0A45A14F2E225741009CBAFE /* ru */,
+			);
+			name = InfoPlist.strings;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
